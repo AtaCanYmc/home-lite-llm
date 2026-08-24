@@ -10,9 +10,24 @@
 
 ---
 
-This repository is configured to run a centralized LiteLLM proxy server using Docker Compose for local network and external access.
+## ⚡ Quickstart (Automated Setup)
+
+Get up and running in seconds with the automated setup script:
+
+```bash
+chmod +x quickstart.sh && ./quickstart.sh
+```
+
+The script automatically:
+1. Verifies Docker & Docker Compose dependencies.
+2. Creates your `.env` configuration file from `.env.example`.
+3. Automatically generates secure cryptographic keys for `MASTER_KEY` and `POSTGRES_PASSWORD`.
+4. Prompts you to add your model provider API keys and launches Docker Compose.
+
+---
 
 ## 📁 Project Structure
+- `quickstart.sh` -> Automated quickstart setup script.
 - `docker-compose.yml` -> Contains PostgreSQL database and LiteLLM proxy services.
 - `config.yaml` -> Contains model routing and proxy configurations.
 - `.env` -> Stores sensitive API keys and database credentials.
@@ -21,7 +36,7 @@ This repository is configured to run a centralized LiteLLM proxy server using Do
 
 ---
 
-## 🛠️ Setup Steps
+## 🛠️ Manual Setup Steps
 
 ### 1. Create Environment File (.env)
 Create a `.env` file in the root directory or copy from `.env.example`:
