@@ -26,6 +26,29 @@ The script automatically:
 
 ---
 
+## 🔑 Obtaining Model Provider API Keys
+
+To enable model routing, obtain API keys from your preferred AI model providers and add them to your `.env` file:
+
+| Provider | Direct Dashboard Link | Free Tier / Pricing Status | How to Get Your API Key |
+| :--- | :--- | :--- | :--- |
+| **Google Gemini** | [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) | 🟢 **Free Tier Available** | Log in -> Click **Create API key** -> Select or create a Google Cloud project |
+| **Groq** | [console.groq.com/keys](https://console.groq.com/keys) | 🟢 **Free Tier Available** | Log in -> Go to **API Keys** -> Click **Create API Key** |
+| **Ollama (Local)** | [ollama.com](https://ollama.com) | 🟢 **100% Free (Self-Hosted)** | Install Ollama locally, run models (`ollama pull llama3`), default endpoint `http://localhost:11434` |
+| **OpenRouter** | [openrouter.ai/keys](https://openrouter.ai/keys) | 🟢 **Free Models & Paid** | Log in -> Go to **Keys** page -> Click **Create Key** (Offers free & paid models) |
+| **Together AI** | [api.together.ai/settings/api-keys](https://api.together.ai/settings/api-keys) | 🎁 **Free Trial Credits** | Log in -> Go to **Settings** -> **API Keys** -> Copy default key |
+| **Fireworks AI** | [fireworks.ai/account/api-keys](https://fireworks.ai/account/api-keys) | 🎁 **Free Trial Credits** | Log in -> Go to **Account** -> **API Keys** -> Create key |
+| **Cohere** | [dashboard.cohere.com/api-keys](https://dashboard.cohere.com/api-keys) | 🎁 **Free Trial Key** | Log in -> Copy your **Trial Key** or generate a **Production Key** |
+| **OpenAI** | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | 💳 **Paid (Pay-as-you-go)** | Log in -> Navigate to **API Keys** -> Click **Create new secret key** |
+| **Anthropic (Claude)** | [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys) | 💳 **Paid (Pay-as-you-go)** | Log in -> Go to **API Keys** -> Click **Create Key** |
+| **DeepSeek** | [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys) | 💳 **Paid (Low Cost)** | Log in -> Go to **API Keys** -> Click **Create API Key** |
+| **Mistral AI** | [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys) | 💳 **Paid (Pay-as-you-go)** | Log in -> Go to **Workspace Settings** -> **API Keys** -> Click **Create new key** |
+| **Perplexity AI** | [perplexity.ai/settings/api](https://perplexity.ai/settings/api) | 💳 **Paid (Pay-as-you-go)** | Log in -> Go to **API Settings** -> Generate key & add credits |
+| **Azure OpenAI** | [portal.azure.com](https://portal.azure.com) | 💳 **Paid (Azure Billing)** | Navigate to your Azure OpenAI resource -> Find **Keys and Endpoint** |
+| **AWS Bedrock** | [console.aws.amazon.com/iam](https://console.aws.amazon.com/iam) | 💳 **Paid (AWS Billing)** | Go to IAM -> Create Access Key for user -> Enable model access in Bedrock Console |
+
+---
+
 ## 📁 Project Structure
 - `quickstart.sh` -> Automated quickstart setup script.
 - `docker-compose.yml` -> Contains PostgreSQL database and LiteLLM proxy services.
@@ -137,12 +160,3 @@ response = client.chat.completions.create(
 )
 
 print(response.choices[0].message.content)
-```
-
----
-
-## 🔒 Security & Key Management (Admin UI)
-PostgreSQL integration enables the LiteLLM Admin UI and dynamic API key generation with budget tracking.
-
-- **Admin UI**: Access `http://localhost:4000/ui` using your `MASTER_KEY` to log in.
-- **User / Team Key Generation**: Generate sub-keys with specific budgets, model restrictions, and rate limits via the UI or API endpoints.
