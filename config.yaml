@@ -1,0 +1,157 @@
+# LiteLLM Proxy Configuration
+# Define models and mapping parameters here
+
+model_list:
+  # -----------------------------------------------------------------
+  # OpenAI Models
+  # -----------------------------------------------------------------
+  - model_name: gpt-4o
+    litellm_params:
+      model: openai/gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+
+  - model_name: gpt-4o-mini
+    litellm_params:
+      model: openai/gpt-4o-mini
+      api_key: os.environ/OPENAI_API_KEY
+
+  - model_name: o3-mini
+    litellm_params:
+      model: openai/o3-mini
+      api_key: os.environ/OPENAI_API_KEY
+
+  # -----------------------------------------------------------------
+  # Anthropic (Claude) Models
+  # -----------------------------------------------------------------
+  - model_name: claude-3-5-sonnet
+    litellm_params:
+      model: anthropic/claude-3-5-sonnet-20241022
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  - model_name: claude-3-5-haiku
+    litellm_params:
+      model: anthropic/claude-3-5-haiku-20241022
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  # -----------------------------------------------------------------
+  # Google Gemini Models
+  # -----------------------------------------------------------------
+  - model_name: gemini-2.0-flash
+    litellm_params:
+      model: gemini/gemini-2.0-flash
+      api_key: os.environ/GEMINI_API_KEY
+
+  - model_name: gemini-1.5-pro
+    litellm_params:
+      model: gemini/gemini-1.5-pro
+      api_key: os.environ/GEMINI_API_KEY
+
+  - model_name: gemini-1.5-flash
+    litellm_params:
+      model: gemini/gemini-1.5-flash
+      api_key: os.environ/GEMINI_API_KEY
+
+  # -----------------------------------------------------------------
+  # DeepSeek Models
+  # -----------------------------------------------------------------
+  - model_name: deepseek-chat
+    litellm_params:
+      model: deepseek/deepseek-chat
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+  - model_name: deepseek-reasoner
+    litellm_params:
+      model: deepseek/deepseek-reasoner
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+  # -----------------------------------------------------------------
+  # Mistral AI Models
+  # -----------------------------------------------------------------
+  - model_name: mistral-large
+    litellm_params:
+      model: mistral/mistral-large-latest
+      api_key: os.environ/MISTRAL_API_KEY
+
+  - model_name: mistral-small
+    litellm_params:
+      model: mistral/mistral-small-latest
+      api_key: os.environ/MISTRAL_API_KEY
+
+  # -----------------------------------------------------------------
+  # Groq Models
+  # -----------------------------------------------------------------
+  - model_name: groq-llama-3.3-70b
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_key: os.environ/GROQ_API_KEY
+
+  # -----------------------------------------------------------------
+  # Cohere Models
+  # -----------------------------------------------------------------
+  - model_name: command-r-plus
+    litellm_params:
+      model: cohere/command-r-plus
+      api_key: os.environ/COHERE_API_KEY
+
+  # -----------------------------------------------------------------
+  # Together AI Models
+  # -----------------------------------------------------------------
+  - model_name: together-llama-3.3-70b
+    litellm_params:
+      model: together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo
+      api_key: os.environ/TOGETHERAI_API_KEY
+
+  # -----------------------------------------------------------------
+  # Fireworks AI Models
+  # -----------------------------------------------------------------
+  - model_name: fireworks-llama-3.3-70b
+    litellm_params:
+      model: fireworks_ai/accounts/fireworks/models/llama-v3p3-70b-instruct
+      api_key: os.environ/FIREWORKS_API_KEY
+
+  # -----------------------------------------------------------------
+  # OpenRouter Models
+  # -----------------------------------------------------------------
+  - model_name: openrouter-auto
+    litellm_params:
+      model: openrouter/auto
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  # -----------------------------------------------------------------
+  # Perplexity AI Models
+  # -----------------------------------------------------------------
+  - model_name: sonar-pro
+    litellm_params:
+      model: perplexity/sonar-pro
+      api_key: os.environ/PERPLEXITYAI_API_KEY
+
+  # -----------------------------------------------------------------
+  # Azure OpenAI Models
+  # -----------------------------------------------------------------
+  - model_name: azure-gpt-4o
+    litellm_params:
+      model: azure/gpt-4o
+      api_key: os.environ/AZURE_API_KEY
+      api_base: os.environ/AZURE_API_BASE
+      api_version: os.environ/AZURE_API_VERSION
+
+  # -----------------------------------------------------------------
+  # AWS Bedrock Models
+  # -----------------------------------------------------------------
+  - model_name: bedrock-claude-3-5-sonnet
+    litellm_params:
+      model: bedrock/anthropic.claude-3-5-sonnet-20241022-v2:0
+      aws_access_key_id: os.environ/AWS_ACCESS_KEY_ID
+      aws_secret_access_key: os.environ/AWS_SECRET_ACCESS_KEY
+      aws_region_name: os.environ/AWS_REGION_NAME
+
+  # -----------------------------------------------------------------
+  # Ollama (Local Models)
+  # -----------------------------------------------------------------
+  - model_name: ollama-llama3
+    litellm_params:
+      model: ollama/llama3
+      api_base: os.environ/OLLAMA_API_BASE
+
+general_settings:
+  master_key: os.environ/MASTER_KEY
