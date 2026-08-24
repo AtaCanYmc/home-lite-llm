@@ -1,4 +1,14 @@
-# LiteLLM Project Setup Instructions
+<p align="center">
+  <img src="assets/logo.jpg" alt="LiteLLM Proxy Logo" width="600" />
+</p>
+
+<h1 align="center">LiteLLM Proxy Server Setup</h1>
+
+<p align="center">
+  <b>Centralized OpenAI-compatible LLM Gateway with PostgreSQL & Supabase Integration</b>
+</p>
+
+---
 
 This repository is configured to run a centralized LiteLLM proxy server using Docker Compose for local network and external access.
 
@@ -7,6 +17,7 @@ This repository is configured to run a centralized LiteLLM proxy server using Do
 - `config.yaml` -> Contains model routing and proxy configurations.
 - `.env` -> Stores sensitive API keys and database credentials.
 - `.env.example` -> Environment variable template file.
+- `assets/logo.jpg` -> Project logo banner.
 
 ---
 
