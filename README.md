@@ -1,11 +1,19 @@
 <p align="center">
-  <img src="assets/logo.jpg" alt="LiteLLM Proxy Logo" width="600" />
+  <img src="assets/banner.jpg" alt="LiteLLM Proxy Enterprise Banner" width="800" />
 </p>
 
 <h1 align="center">LiteLLM Proxy Server Setup</h1>
 
 <p align="center">
   <b>Centralized OpenAI-compatible LLM Gateway with PostgreSQL & Supabase Integration</b>
+</p>
+
+<p align="center">
+  <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License MIT" /></a>
+  <a href="https://github.com/BerriAI/litellm"><img src="https://img.shields.io/badge/LiteLLM-v1.61.1-purple.svg" alt="LiteLLM Version" /></a>
+  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-16.8-blue.svg" alt="PostgreSQL 16.8" /></a>
+  <a href="SECURITY.md"><img src="https://img.shields.io/badge/Security-Hardened-success.svg" alt="Security Hardened" /></a>
+  <a href=".github/workflows/ci.yml"><img src="https://img.shields.io/badge/CI-Passing-brightgreen.svg" alt="CI Status" /></a>
 </p>
 
 ---
@@ -31,6 +39,7 @@
   - [3. Python Integration (OpenAI SDK & LangChain)](#3-python-integration-openai-sdk--langchain)
   - [4. Node.js / TypeScript Integration (OpenAI SDK)](#4-nodejs--typescript-integration-openai-sdk)
 - [🔒 Security & Key Management (Admin UI)](#-security--key-management-admin-ui)
+- [📜 License & Community Policy](#-license--community-policy)
 
 ---
 
@@ -118,12 +127,17 @@ To enable model routing, obtain API keys from your preferred AI model providers 
 - `.env` -> Stores sensitive API keys and database credentials.
 - `.env.example` -> Environment variable template file.
 - `SECURITY.md` -> Security policy & vulnerability reporting procedures.
+- `CONTRIBUTING.md` -> Contribution guidelines and development workflow.
+- `CODE_OF_CONDUCT.md` -> Community Code of Conduct.
+- `LICENSE.md` -> MIT License details.
+- `CHANGELOG.md` -> Version release history.
+- `SUPPORT.md` -> Support and troubleshooting guide.
 - `.github/workflows/ci.yml` -> Automated CI/CD validation workflow.
 - `.github/dependabot.yml` -> Automated dependency update configuration.
 - `scripts/backup_db.sh` -> Automated database backup script.
 - `scripts/restore_db.sh` -> Automated database restore script.
 - `monitoring/prometheus.yml` -> Prometheus scraping configuration.
-- `assets/logo.jpg` -> Project logo banner.
+- `assets/banner.jpg` -> Enterprise project logo banner.
 
 ---
 
@@ -328,3 +342,14 @@ PostgreSQL integration enables the LiteLLM Admin UI and dynamic API key generati
 
 - **Admin UI**: Access `http://localhost:4000/ui` using your `MASTER_KEY` to log in.
 - **User / Team Key Generation**: Generate sub-keys with specific budgets, model restrictions, and rate limits via the UI or API endpoints.
+
+---
+
+## 📜 License & Community Policy
+
+- **License**: Distributed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
+- **Security Policy**: Read our vulnerability disclosure guidelines in [SECURITY.md](SECURITY.md).
+- **Contributing**: Please review [CONTRIBUTING.md](CONTRIBUTING.md) before submitting Pull Requests.
+- **Code of Conduct**: Community standards documented in [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+- **Support**: Troubleshooting & support resources in [SUPPORT.md](SUPPORT.md).
+- **Changelog**: Release history in [CHANGELOG.md](CHANGELOG.md).
