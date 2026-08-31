@@ -59,6 +59,9 @@ The script automatically:
 3. Automatically generates secure cryptographic keys for `MASTER_KEY` and `POSTGRES_PASSWORD`.
 4. Validates `config.yaml` syntax.
 5. Prompts you to add your model provider API keys and launches Docker Compose.
+6. *(Optional)* Sets up remote access so you can reach LiteLLM from outside your network — choose from **Cloudflare Tunnel**, **ngrok**, or **Tailscale** directly from the interactive menu.
+
+> See [tunnels/README.md](tunnels/README.md) for a full comparison of remote access methods.
 
 ---
 
