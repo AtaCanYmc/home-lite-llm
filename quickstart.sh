@@ -48,7 +48,21 @@ if grep -q "your_postgres_password_here" .env 2>/dev/null; then
     echo "✅ PostgreSQL Password generated and set in .env"
 fi
 
-# 5. Validate config.yaml syntax
+# 5. Generate Grafana admin password if default
+if grep -q "your_grafana_password_here" .env 2>/dev/null || grep -q "GRAFANA_ADMIN_PASSWORD=admin" .env 2>/dev/null; then
+    echo "🔐 Generating secure GRAFANA_ADMIN_PASSWORD..."
+    NEW_GRAFANA_PASS="$(openssl rand -hex 12 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(12))')"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "s/GRAFANA_ADMIN_PASSWORD=admin/GRAFANA_ADMIN_PASSWORD=$NEW_GRAFANA_PASS/g" .env
+        sed -i '' "s/your_grafana_password_here/$NEW_GRAFANA_PASS/g" .env
+    else
+        sed -i "s/GRAFANA_ADMIN_PASSWORD=admin/GRAFANA_ADMIN_PASSWORD=$NEW_GRAFANA_PASS/g" .env
+        sed -i "s/your_grafana_password_here/$NEW_GRAFANA_PASS/g" .env
+    fi
+    echo "✅ Grafana Admin Password generated and set in .env"
+fi
+
+# 6. Validate config.yaml syntax
 echo "🔍 Validating config.yaml syntax..."
 if command -v python3 &> /dev/null; then
     python3 -c "import yaml; yaml.safe_load(open('config.yaml'))" 2>/dev/null && echo "✅ config.yaml syntax is valid" || echo "ℹ️ Skipped PyYAML validation (python3/pyyaml optional)"
