@@ -33,6 +33,9 @@ jobs:
           bash -n quickstart.sh
           echo "✅ quickstart.sh syntax valid"
 
+      - name: Create Environment File for CI
+        run: cp .env.example .env
+
       - name: Validate Docker Compose Configuration
         run: |
           docker compose config
