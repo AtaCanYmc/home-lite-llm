@@ -10,6 +10,29 @@
 
 ---
 
+## 📋 Table of Contents
+- [⚡ Quickstart (Automated Setup)](#-quickstart-automated-setup)
+- [🔒 Security, Observability & Resilience Architecture](#-security-observability--resilience-architecture)
+  - [1. Security & Authentication](#1-security--authentication)
+  - [2. Observability & Telemetry](#2-observability--telemetry)
+  - [3. Resilience & Fallback Mechanisms](#3-resilience--fallback-mechanisms)
+  - [4. Data Persistence & Backup](#4-data-persistence--backup)
+- [🔑 Obtaining Model Provider API Keys](#-obtaining-model-provider-api-keys)
+- [📁 Project Structure](#-project-structure)
+- [🛠️ Manual Setup Steps](#️-manual-setup-steps)
+  - [1. Create Environment File (.env)](#1-create-environment-file-env)
+  - [2. Database Options (Local Postgres vs. Supabase)](#2-database-options-local-postgres-vs-supabase)
+  - [3. Configure Models & Fallbacks (config.yaml)](#3-configure-models--fallbacks-configyaml)
+  - [4. Start Services (Docker Compose)](#4-start-services-docker-compose)
+- [🚀 Usage & Code Integration Examples](#-usage--code-integration-examples)
+  - [1. Health Check & Metrics](#1-health-check--metrics)
+  - [2. cURL Examples](#2-curl-examples)
+  - [3. Python Integration (OpenAI SDK & LangChain)](#3-python-integration-openai-sdk--langchain)
+  - [4. Node.js / TypeScript Integration (OpenAI SDK)](#4-nodejs--typescript-integration-openai-sdk)
+- [🔒 Security & Key Management (Admin UI)](#-security--key-management-admin-ui)
+
+---
+
 ## ⚡ Quickstart (Automated Setup)
 
 Get up and running in seconds with the automated setup script:
