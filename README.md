@@ -26,6 +26,18 @@ The script automatically:
 
 ---
 
+## 🔒 Production Hardening & Security Features
+
+This configuration includes production-grade reliability and security defaults:
+
+- **Healthchecks & Managed Dependencies**: `db` includes a `pg_isready` health check; LiteLLM waits for `service_healthy` before initializing to prevent startup connection crashes.
+- **Pinned Image Versions**: Fixed version tags (`postgres:16.8-alpine`, `ghcr.io/berriai/litellm:main-v1.61.1`) to avoid breaking changes from `:latest`.
+- **Log Rotation**: Configured `json-file` logging driver with `max-size: "10m"` and `max-file: "3"` to prevent host disk bloat during heavy LLM streaming.
+- **Network Isolation**: Dedicated `litellm-network` bridge network. Database port `5432` is kept strictly private within the container network.
+- **Restart Policy**: Configured `restart: unless-stopped` on all services for automatic recovery after crashes or system reboots.
+
+---
+
 ## 🔑 Obtaining Model Provider API Keys
 
 To enable model routing, obtain API keys from your preferred AI model providers and add them to your `.env` file:
@@ -51,7 +63,7 @@ To enable model routing, obtain API keys from your preferred AI model providers 
 
 ## 📁 Project Structure
 - `quickstart.sh` -> Automated quickstart setup script.
-- `docker-compose.yml` -> Contains PostgreSQL database and LiteLLM proxy services.
+- `docker-compose.yml` -> Production-hardened PostgreSQL database and LiteLLM proxy services.
 - `config.yaml` -> Contains model routing and proxy configurations.
 - `.env` -> Stores sensitive API keys and database credentials.
 - `.env.example` -> Environment variable template file.
@@ -160,3 +172,12 @@ response = client.chat.completions.create(
 )
 
 print(response.choices[0].message.content)
+```
+
+---
+
+## 🔒 Security & Key Management (Admin UI)
+PostgreSQL integration enables the LiteLLM Admin UI and dynamic API key generation with budget tracking.
+
+- **Admin UI**: Access `http://localhost:4000/ui` using your `MASTER_KEY` to log in.
+- **User / Team Key Generation**: Generate sub-keys with specific budgets, model restrictions, and rate limits via the UI or API endpoints.

@@ -2,26 +2,34 @@ services:
   # Local PostgreSQL Database for LiteLLM Key Management & Spend Tracking
   # (Note: If using external Supabase, you can comment out or stop this container)
   db:
-    image: postgres:16-alpine
+    image: postgres:16.8-alpine
     container_name: litellm-db
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_DB: litellm
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your_postgres_password_here}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - litellm-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d litellm"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d litellm || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # LiteLLM Proxy Server
   litellm:
-    image: ghcr.io/berriai/litellm:main-latest
+    image: ghcr.io/berriai/litellm:main-v1.61.1
     container_name: litellm-proxy
-    restart: always
+    restart: unless-stopped
     ports:
       - "4000:4000"
     volumes:
@@ -38,10 +46,21 @@ services:
       - "--port"
       - "4000"
       - "--detailed_debug"
+    networks:
+      - litellm-network
     depends_on:
       db:
         condition: service_healthy
         required: false
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  litellm-network:
+    driver: bridge
 
 volumes:
   postgres_data:
