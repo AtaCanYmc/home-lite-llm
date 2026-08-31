@@ -20,9 +20,10 @@
 
 ## 📋 Table of Contents
 - [⚡ Quickstart (Automated Setup)](#-quickstart-automated-setup)
+- [🖥️ Dashboards & Web Interfaces Reference](#️-dashboards--web-interfaces-reference)
 - [🔒 Security, Observability & Resilience Architecture](#-security-observability--resilience-architecture)
   - [1. Security & Authentication](#1-security--authentication)
-  - [2. Observability & Monitoring (Prometheus Integration)](#2-observability--monitoring-prometheus-integration)
+  - [2. Observability & Monitoring (Prometheus & Grafana Integration)](#2-observability--monitoring-prometheus--grafana-integration)
   - [3. Resilience & Fallback Mechanisms](#3-resilience--fallback-mechanisms)
   - [4. Data Persistence & Backup Scripts](#4-data-persistence--backup-scripts)
 - [🤖 Automated CI/CD Workflow & Dependabot](#-automated-cicd-workflow--dependabot)
@@ -34,7 +35,7 @@
   - [3. Configure Models & Fallbacks (config.yaml)](#3-configure-models--fallbacks-configyaml)
   - [4. Start Services (Docker Compose)](#4-start-services-docker-compose)
 - [🚀 Usage & Code Integration Examples](#-usage--code-integration-examples)
-  - [1. Health Check & Metrics](#1-health-check--metrics)
+  - [1. Health Check & Observability Dashboards](#1-health-check--observability-dashboards)
   - [2. cURL Examples](#2-curl-examples)
   - [3. Python Integration (OpenAI SDK & LangChain)](#3-python-integration-openai-sdk--langchain)
   - [4. Node.js / TypeScript Integration (OpenAI SDK)](#4-nodejs--typescript-integration-openai-sdk)
@@ -60,6 +61,22 @@ The script automatically:
 
 ---
 
+## 🖥️ Dashboards & Web Interfaces Reference
+
+Here is a guide to all web interfaces, management screens, and diagnostic endpoints available in this project:
+
+| Interface / URL | Credentials / Auth | Description & Features |
+| :--- | :--- | :--- |
+| **LiteLLM Admin UI**<br>`http://localhost:4000/ui` | Bearer `MASTER_KEY`<br>or `UI_USERNAME` / `UI_PASSWORD` | **Central Management Dashboard**: Generate virtual API keys, set spending budgets per user/team, track cost/token metrics, inspect request logs, and test model prompts inline. |
+| **Grafana Analytics**<br>`http://localhost:3000` | Default: `admin` / `admin`<br>*(configurable in `.env`)* | **Performance & Analytics Dashboard**: Pre-configured Prometheus graphs showing request rates (RPS), token consumption by model, P50/P90/P99 latency, and error rates (`429`, `500`). |
+| **Prometheus Explorer**<br>`http://localhost:9090` | None *(Internal)* | **Metrics Database UI**: Execute PromQL queries, check target scrape status (`litellm-proxy`), and inspect raw metric series. |
+| **Health Check**<br>`http://localhost:4000/health` | None | **Container Health Check**: Endpoint used by Docker Compose and load balancers to verify proxy uptime (`200 OK`). |
+| **Prometheus Metrics**<br>`http://localhost:4000/metrics` | None | **Raw Telemetry Stream**: Exposes Prometheus-formatted metrics scraped automatically by the Prometheus service. |
+| **Active Models List**<br>`http://localhost:4000/v1/models` | Bearer `MASTER_KEY` | **OpenAI Models Endpoint**: Returns a JSON list of all active LLM models configured in `config.yaml`. |
+| **Chat Completions API**<br>`http://localhost:4000/v1/chat/completions` | Bearer `MASTER_KEY` or Virtual Key | **OpenAI API Gateway**: Primary endpoint for standard and streaming LLM inference. |
+
+---
+
 ## 🔒 Security, Observability & Resilience Architecture
 
 This deployment includes enterprise-grade production hardening:
@@ -70,7 +87,8 @@ This deployment includes enterprise-grade production hardening:
 - **Private Database Network**: Database port `5432` is bound strictly to `litellm-network` and is never exposed externally.
 - **Security Policy**: Comprehensive security guidelines and vulnerability disclosure process documented in [SECURITY.md](SECURITY.md).
 
-### 2. Observability & Monitoring (Prometheus Integration)
+### 2. Observability & Monitoring (Prometheus & Grafana Integration)
+- **Grafana Analytics Dashboard**: Pre-configured Grafana runs on `http://localhost:3000` (default login: `admin`/`admin`), automatically provisioned with Prometheus as its default datasource.
 - **Built-in Prometheus Container**: Pre-configured Prometheus server runs on `http://localhost:9090`, scraping `litellm:4000/metrics`.
 - **Prometheus Metrics**: Metrics endpoint available at `http://localhost:4000/metrics` for monitoring token counts, request latency, and HTTP status codes (`429`, `500`).
 - **Structured JSON Logging**: Enabled `json_logs: true` in `config.yaml` for seamless parsing by Loki, Datadog, or AWS CloudWatch.
@@ -82,7 +100,7 @@ This deployment includes enterprise-grade production hardening:
 - **Retries & Rate Limits**: Configured `num_retries: 3` and model RPM limits to prevent upstream ban/exhaustion.
 
 ### 4. Data Persistence & Backup Scripts
-- **Persistent Volume**: Database state stored in `postgres_data` volume.
+- **Persistent Volume**: Database state stored in `postgres_data` volume and Grafana dashboard data in `grafana_data` volume.
 - **Automated Backup & Restore Scripts**:
   - Run database backup: `./scripts/backup_db.sh`
   - Restore database: `./scripts/restore_db.sh <path_to_backup.sql>`
@@ -122,9 +140,9 @@ To enable model routing, obtain API keys from your preferred AI model providers 
 
 ## 📁 Project Structure
 - `quickstart.sh` -> Automated quickstart setup script.
-- `docker-compose.yml` -> Production-hardened PostgreSQL, LiteLLM proxy, and Prometheus services.
+- `docker-compose.yml` -> Production-hardened PostgreSQL, LiteLLM proxy, Prometheus, and Grafana services.
 - `config.yaml` -> Contains model routing, fallbacks, vLLM/Ollama settings, and observability options.
-- `.env` -> Stores sensitive API keys and database credentials.
+- `.env` -> Stores sensitive API keys, credentials, and configuration flags.
 - `.env.example` -> Environment variable template file.
 - `SECURITY.md` -> Security policy & vulnerability reporting procedures.
 - `CONTRIBUTING.md` -> Contribution guidelines and development workflow.
@@ -137,6 +155,7 @@ To enable model routing, obtain API keys from your preferred AI model providers 
 - `scripts/backup_db.sh` -> Automated database backup script.
 - `scripts/restore_db.sh` -> Automated database restore script.
 - `monitoring/prometheus.yml` -> Prometheus scraping configuration.
+- `monitoring/grafana/provisioning` -> Automatic Grafana datasource provisioning.
 - `assets/banner.jpg` -> Enterprise project logo banner.
 
 ---
@@ -180,7 +199,7 @@ If you prefer to use **Supabase** (or any cloud-hosted Postgres) instead of runn
 Customize `config.yaml` to specify which models, fallback rules, and observability settings LiteLLM will serve.
 
 ### 4. Start Services (Docker Compose)
-Run PostgreSQL, LiteLLM Proxy, and Prometheus in the background using Docker Compose:
+Run PostgreSQL, LiteLLM Proxy, Prometheus, and Grafana in the background using Docker Compose:
 
 ```bash
 docker compose up -d
@@ -200,18 +219,18 @@ docker compose logs -f litellm
 
 ## 🚀 Usage & Code Integration Examples
 
-### 1. Health Check & Metrics
-Verify that the LiteLLM proxy server and Prometheus are running:
+### 1. Health Check & Observability Dashboards
+Verify that all services are running:
 
 ```bash
-# Health Check
+# Health Check (LiteLLM Proxy)
 curl http://localhost:4000/health
 
 # Prometheus Metrics (LiteLLM)
 curl http://localhost:4000/metrics
 
-# Prometheus Dashboard
-# Access in browser: http://localhost:9090
+# Prometheus Server Dashboard:  http://localhost:9090
+# Grafana Analytics Dashboard:  http://localhost:3000  (Default: admin / admin)
 ```
 
 ---
