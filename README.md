@@ -68,7 +68,7 @@ Here is a guide to all web interfaces, management screens, and diagnostic endpoi
 | Interface / URL | Credentials / Auth | Description & Features |
 | :--- | :--- | :--- |
 | **LiteLLM Admin UI**<br>`http://localhost:4000/ui` | Bearer `MASTER_KEY`<br>or `UI_USERNAME` / `UI_PASSWORD` | **Central Management Dashboard**: Generate virtual API keys, set spending budgets per user/team, track cost/token metrics, inspect request logs, and test model prompts inline. |
-| **Grafana Analytics**<br>`http://localhost:3000` | Default: `admin` / `admin`<br>*(configurable in `.env`)* | **Performance & Analytics Dashboard**: Pre-configured Prometheus graphs showing request rates (RPS), token consumption by model, P50/P90/P99 latency, and error rates (`429`, `500`). |
+| **Grafana Analytics**<br>`http://localhost:3001` | Default: `admin` / `admin`<br>*(configurable in `.env`)* | **Performance & Analytics Dashboard**: Pre-configured Prometheus graphs showing request rates (RPS), token consumption by model, P50/P90/P99 latency, and error rates (`429`, `500`). |
 | **Prometheus Explorer**<br>`http://localhost:9090` | None *(Internal)* | **Metrics Database UI**: Execute PromQL queries, check target scrape status (`litellm-proxy`), and inspect raw metric series. |
 | **Health Check**<br>`http://localhost:4000/health` | None | **Container Health Check**: Endpoint used by Docker Compose and load balancers to verify proxy uptime (`200 OK`). |
 | **Prometheus Metrics**<br>`http://localhost:4000/metrics` | None | **Raw Telemetry Stream**: Exposes Prometheus-formatted metrics scraped automatically by the Prometheus service. |
@@ -88,7 +88,7 @@ This deployment includes enterprise-grade production hardening:
 - **Security Policy**: Comprehensive security guidelines and vulnerability disclosure process documented in [SECURITY.md](SECURITY.md).
 
 ### 2. Observability & Monitoring (Prometheus & Grafana Integration)
-- **Grafana Analytics Dashboard**: Pre-configured Grafana runs on `http://localhost:3000` (default login: `admin`/`admin`), automatically provisioned with Prometheus as its default datasource.
+- **Grafana Analytics Dashboard**: Pre-configured Grafana runs on `http://localhost:3001` (default login: `admin`/`admin`), automatically provisioned with Prometheus as its default datasource.
 - **Built-in Prometheus Container**: Pre-configured Prometheus server runs on `http://localhost:9090`, scraping `litellm:4000/metrics`.
 - **Prometheus Metrics**: Metrics endpoint available at `http://localhost:4000/metrics` for monitoring token counts, request latency, and HTTP status codes (`429`, `500`).
 - **Structured JSON Logging**: Enabled `json_logs: true` in `config.yaml` for seamless parsing by Loki, Datadog, or AWS CloudWatch.
@@ -230,7 +230,7 @@ curl http://localhost:4000/health
 curl http://localhost:4000/metrics
 
 # Prometheus Server Dashboard:  http://localhost:9090
-# Grafana Analytics Dashboard:  http://localhost:3000  (Default: admin / admin)
+# Grafana Analytics Dashboard:  http://localhost:3001  (Default: admin / admin)
 ```
 
 ---

@@ -73,7 +73,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "=================================================="
     echo "  • Health Check: http://localhost:4000/health"
     echo "  • Prometheus:   http://localhost:9090"
-    echo "  • Grafana UI:   http://localhost:3000"
+    echo "  • Grafana UI:   http://localhost:3001"
     echo "  • Admin UI:     http://localhost:4000/ui"
     echo "=================================================="
 else
