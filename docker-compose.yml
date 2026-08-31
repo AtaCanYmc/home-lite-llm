@@ -7,14 +7,14 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-litellm}
-      POSTGRES_USER: ${POSTGRES_USER:-litellm_user}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your_postgres_password_here}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - litellm-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-litellm_user} -d ${POSTGRES_DB:-litellm} || exit 1"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-litellm} || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -38,7 +38,7 @@ services:
       - path: .env
         required: false
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-litellm_user}:${POSTGRES_PASSWORD:-your_postgres_password_here}@db:5432/${POSTGRES_DB:-litellm}}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-your_postgres_password_here}@db:5432/${POSTGRES_DB:-litellm}}
       LITELLM_MASTER_KEY: ${MASTER_KEY:-sk-your-secure-and-long-master-key-here}
       UI_USERNAME: ${UI_USERNAME:-litellm_admin}
       UI_PASSWORD: ${UI_PASSWORD:-sk-your-secure-and-long-master-key-here}
