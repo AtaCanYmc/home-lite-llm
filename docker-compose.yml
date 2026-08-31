@@ -27,7 +27,7 @@ services:
 
   # LiteLLM Proxy Server
   litellm:
-    image: ghcr.io/berriai/litellm:main-v1.61.1
+    image: ghcr.io/berriai/litellm:main-v1.82.3
     container_name: litellm-proxy
     restart: unless-stopped
     ports:
