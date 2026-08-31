@@ -11,7 +11,7 @@
 <p align="center">
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License MIT" /></a>
   <a href="https://github.com/BerriAI/litellm"><img src="https://img.shields.io/badge/LiteLLM-v1.82.3-purple.svg" alt="LiteLLM Version" /></a>
-  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-16.8-blue.svg" alt="PostgreSQL 16.8" /></a>
+  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-18.6-blue.svg" alt="PostgreSQL 16.8" /></a>
   <a href="SECURITY.md"><img src="https://img.shields.io/badge/Security-Hardened-success.svg" alt="Security Hardened" /></a>
   <a href=".github/workflows/ci.yml"><img src="https://img.shields.io/badge/CI-Passing-brightgreen.svg" alt="CI Status" /></a>
 </p>
