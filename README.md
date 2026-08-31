@@ -130,18 +130,20 @@ docker compose logs -f litellm
 
 ---
 
-## 🚀 Usage & Testing
+## 🚀 Usage & Code Integration Examples
 
-### Health Check
-To verify that the proxy server is running:
+### 1. Health Check
+Verify that the LiteLLM proxy server is running and ready:
 
 ```bash
 curl http://localhost:4000/health
 ```
 
-### OpenAI Compatible API Request (cURL)
-LiteLLM proxy complies with the OpenAI API standard. Pass your `MASTER_KEY` in the `Authorization` header:
+---
 
+### 2. cURL Examples
+
+#### Standard Chat Completion Request
 ```bash
 curl http://localhost:4000/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -149,29 +151,113 @@ curl http://localhost:4000/v1/chat/completions \
   -d '{
     "model": "gpt-4o-mini",
     "messages": [
-      {"role": "user", "content": "Hello, is the LiteLLM proxy server running?"}
+      {"role": "user", "content": "Hello! Explain LiteLLM in one sentence."}
     ]
   }'
 ```
 
-### Python Usage (OpenAI SDK)
+#### Streaming Response Request
+```bash
+curl http://localhost:4000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-your-secure-and-long-master-key-here" \
+  -d '{
+    "model": "claude-3-5-sonnet",
+    "messages": [
+      {"role": "user", "content": "Write a short poem about AI proxies."}
+    ],
+    "stream": true
+  }'
+```
 
+---
+
+### 3. Python Integration (OpenAI SDK & LangChain)
+
+#### Standard & Streaming Completion (OpenAI Python SDK)
 ```python
 from openai import OpenAI
 
+# Initialize client pointing to local LiteLLM Proxy
 client = OpenAI(
     api_key="sk-your-secure-and-long-master-key-here",  # MASTER_KEY from .env
     base_url="http://localhost:4000"
 )
 
+# Standard Response
 response = client.chat.completions.create(
-    model="gemini-1.5-flash",
+    model="gemini-2.0-flash",
     messages=[
-        {"role": "user", "content": "Testing Gemini model via LiteLLM."}
+        {"role": "user", "content": "Testing Gemini model via LiteLLM Proxy."}
     ]
 )
+print("Standard Response:", response.choices[0].message.content)
 
-print(response.choices[0].message.content)
+# Streaming Response
+stream = client.chat.completions.create(
+    model="deepseek-chat",
+    messages=[
+        {"role": "user", "content": "Count from 1 to 5 slowly."}
+    ],
+    stream=True
+)
+
+print("Streaming Response: ", end="")
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+print()
+```
+
+#### LangChain Integration
+```python
+from langchain_community.chat_models import ChatOpenAI
+
+llm = ChatOpenAI(
+    openai_api_key="sk-your-secure-and-long-master-key-here",
+    openai_api_base="http://localhost:4000",
+    model_name="claude-3-5-sonnet"
+)
+
+response = llm.invoke("What are the advantages of a centralized LLM gateway?")
+print(response.content)
+```
+
+---
+
+### 4. Node.js / TypeScript Integration (OpenAI SDK)
+
+```typescript
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: 'sk-your-secure-and-long-master-key-here', // MASTER_KEY from .env
+  baseURL: 'http://localhost:4000',
+});
+
+async function main() {
+  // Standard Completion
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [{ role: 'user', content: 'Hello from Node.js!' }],
+  });
+  console.log('Response:', completion.choices[0].message.content);
+
+  // Streaming Completion
+  const stream = await openai.chat.completions.create({
+    model: 'gemini-1.5-flash',
+    messages: [{ role: 'user', content: 'Tell me a quick joke.' }],
+    stream: true,
+  });
+
+  process.stdout.write('Stream: ');
+  for await (const chunk of stream) {
+    process.stdout.write(chunk.choices[0]?.delta?.content || '');
+  }
+  console.log();
+}
+
+main().catch(console.error);
 ```
 
 ---
