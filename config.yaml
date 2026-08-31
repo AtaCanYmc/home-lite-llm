@@ -156,6 +156,15 @@ model_list:
       model: ollama/llama3
       api_base: os.environ/OLLAMA_API_BASE
 
+  # -----------------------------------------------------------------
+  # vLLM / Custom OpenAI-Compatible Local Inference Server
+  # -----------------------------------------------------------------
+  - model_name: vllm-llama3
+    litellm_params:
+      model: openai/meta-llama/Meta-Llama-3-8B-Instruct
+      api_base: http://host.docker.internal:8000/v1
+      api_key: "NONE"
+
 # -----------------------------------------------------------------
 # Router & Resilience Settings (Automatic Fallbacks & Retries)
 # -----------------------------------------------------------------

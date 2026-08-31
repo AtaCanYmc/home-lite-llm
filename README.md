@@ -14,9 +14,10 @@
 - [⚡ Quickstart (Automated Setup)](#-quickstart-automated-setup)
 - [🔒 Security, Observability & Resilience Architecture](#-security-observability--resilience-architecture)
   - [1. Security & Authentication](#1-security--authentication)
-  - [2. Observability & Telemetry](#2-observability--telemetry)
+  - [2. Observability & Monitoring (Prometheus Integration)](#2-observability--monitoring-prometheus-integration)
   - [3. Resilience & Fallback Mechanisms](#3-resilience--fallback-mechanisms)
-  - [4. Data Persistence & Backup](#4-data-persistence--backup)
+  - [4. Data Persistence & Backup Scripts](#4-data-persistence--backup-scripts)
+- [🤖 Automated CI/CD Workflow & Dependabot](#-automated-cicd-workflow--dependabot)
 - [🔑 Obtaining Model Provider API Keys](#-obtaining-model-provider-api-keys)
 - [📁 Project Structure](#-project-structure)
 - [🛠️ Manual Setup Steps](#️-manual-setup-steps)
@@ -58,22 +59,31 @@ This deployment includes enterprise-grade production hardening:
 - **Crypto-Random Master Key**: Automatically generated strong hex keys prevent unauthorized API usage.
 - **Hashed API Key Storage**: LiteLLM hashes all virtual keys in PostgreSQL before storing them.
 - **Private Database Network**: Database port `5432` is bound strictly to `litellm-network` and is never exposed externally.
+- **Security Policy**: Comprehensive security guidelines and vulnerability disclosure process documented in [SECURITY.md](SECURITY.md).
 
-### 2. Observability & Telemetry
-- **Prometheus Metrics**: Metrics endpoint available at `http://localhost:4000/metrics` for scraping by Prometheus & Grafana (tracks token counts, latency, 429/500 status codes).
+### 2. Observability & Monitoring (Prometheus Integration)
+- **Built-in Prometheus Container**: Pre-configured Prometheus server runs on `http://localhost:9090`, scraping `litellm:4000/metrics`.
+- **Prometheus Metrics**: Metrics endpoint available at `http://localhost:4000/metrics` for monitoring token counts, request latency, and HTTP status codes (`429`, `500`).
 - **Structured JSON Logging**: Enabled `json_logs: true` in `config.yaml` for seamless parsing by Loki, Datadog, or AWS CloudWatch.
 - **Log Rotation**: Host disk bloat prevention via Docker `json-file` driver (`max-size: "10m"`, `max-file: "3"`).
 
 ### 3. Resilience & Fallback Mechanisms
+- **Advanced Healthchecks**: Both `db` (`pg_isready`) and `litellm` (`/health`) feature active Docker healthchecks. LiteLLM waits for `service_healthy` to ensure database readiness before starting.
 - **Automatic Fallbacks**: Configured in `config.yaml` so if a primary provider fails or hits rate limits, requests automatically failover (e.g. `gpt-4o` -> `gemini-2.0-flash` / `claude-3-5-sonnet`).
 - **Retries & Rate Limits**: Configured `num_retries: 3` and model RPM limits to prevent upstream ban/exhaustion.
 
-### 4. Data Persistence & Backup
+### 4. Data Persistence & Backup Scripts
 - **Persistent Volume**: Database state stored in `postgres_data` volume.
-- **Backup Command**: Dump your PostgreSQL database at any time:
-  ```bash
-  docker exec litellm-db pg_dump -U postgres litellm > backup_$(date +%Y%m%d).sql
-  ```
+- **Automated Backup & Restore Scripts**:
+  - Run database backup: `./scripts/backup_db.sh`
+  - Restore database: `./scripts/restore_db.sh <path_to_backup.sql>`
+
+---
+
+## 🤖 Automated CI/CD Workflow & Dependabot
+
+- **GitHub Actions**: Automated CI workflow (`.github/workflows/ci.yml`) validates `config.yaml`, `quickstart.sh`, and `docker-compose.yml` on every pull request and push.
+- **Dependabot**: Configured (`.github/dependabot.yml`) for weekly automated updates of GitHub Actions and Docker Compose image versions.
 
 ---
 
@@ -86,6 +96,7 @@ To enable model routing, obtain API keys from your preferred AI model providers 
 | **Google Gemini** | [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) | 🟢 **Free Tier Available** | Log in -> Click **Create API key** -> Select or create a Google Cloud project |
 | **Groq** | [console.groq.com/keys](https://console.groq.com/keys) | 🟢 **Free Tier Available** | Log in -> Go to **API Keys** -> Click **Create API Key** |
 | **Ollama (Local)** | [ollama.com](https://ollama.com) | 🟢 **100% Free (Self-Hosted)** | Install Ollama locally, run models (`ollama pull llama3`), default endpoint `http://localhost:11434` |
+| **vLLM (Local/Cloud)** | [vllm.ai](https://vllm.ai) | 🟢 **100% Free (Self-Hosted)** | Run vLLM OpenAI-compatible server on `http://localhost:8000/v1` |
 | **OpenRouter** | [openrouter.ai/keys](https://openrouter.ai/keys) | 🟢 **Free Models & Paid** | Log in -> Go to **Keys** page -> Click **Create Key** (Offers free & paid models) |
 | **Together AI** | [api.together.ai/settings/api-keys](https://api.together.ai/settings/api-keys) | 🎁 **Free Trial Credits** | Log in -> Go to **Settings** -> **API Keys** -> Copy default key |
 | **Fireworks AI** | [fireworks.ai/account/api-keys](https://fireworks.ai/account/api-keys) | 🎁 **Free Trial Credits** | Log in -> Go to **Account** -> **API Keys** -> Create key |
@@ -102,10 +113,16 @@ To enable model routing, obtain API keys from your preferred AI model providers 
 
 ## 📁 Project Structure
 - `quickstart.sh` -> Automated quickstart setup script.
-- `docker-compose.yml` -> Production-hardened PostgreSQL database and LiteLLM proxy services.
-- `config.yaml` -> Contains model routing, fallbacks, and observability options.
+- `docker-compose.yml` -> Production-hardened PostgreSQL, LiteLLM proxy, and Prometheus services.
+- `config.yaml` -> Contains model routing, fallbacks, vLLM/Ollama settings, and observability options.
 - `.env` -> Stores sensitive API keys and database credentials.
 - `.env.example` -> Environment variable template file.
+- `SECURITY.md` -> Security policy & vulnerability reporting procedures.
+- `.github/workflows/ci.yml` -> Automated CI/CD validation workflow.
+- `.github/dependabot.yml` -> Automated dependency update configuration.
+- `scripts/backup_db.sh` -> Automated database backup script.
+- `scripts/restore_db.sh` -> Automated database restore script.
+- `monitoring/prometheus.yml` -> Prometheus scraping configuration.
 - `assets/logo.jpg` -> Project logo banner.
 
 ---
@@ -149,7 +166,7 @@ If you prefer to use **Supabase** (or any cloud-hosted Postgres) instead of runn
 Customize `config.yaml` to specify which models, fallback rules, and observability settings LiteLLM will serve.
 
 ### 4. Start Services (Docker Compose)
-Run PostgreSQL and LiteLLM Proxy in the background using Docker Compose:
+Run PostgreSQL, LiteLLM Proxy, and Prometheus in the background using Docker Compose:
 
 ```bash
 docker compose up -d
@@ -170,14 +187,17 @@ docker compose logs -f litellm
 ## 🚀 Usage & Code Integration Examples
 
 ### 1. Health Check & Metrics
-Verify that the LiteLLM proxy server is running:
+Verify that the LiteLLM proxy server and Prometheus are running:
 
 ```bash
 # Health Check
 curl http://localhost:4000/health
 
-# Prometheus Metrics
+# Prometheus Metrics (LiteLLM)
 curl http://localhost:4000/metrics
+
+# Prometheus Dashboard
+# Access in browser: http://localhost:9090
 ```
 
 ---

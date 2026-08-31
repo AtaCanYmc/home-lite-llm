@@ -1,0 +1,39 @@
+name: CI & Configuration Validation
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate:
+    name: Validate Configurations & Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PyYAML
+        run: python -m pip install pyyaml
+
+      - name: Validate config.yaml Syntax
+        run: |
+          python -c "import yaml; yaml.safe_load(open('config.yaml'))"
+          echo "✅ config.yaml syntax valid"
+
+      - name: Validate Bash Script (quickstart.sh)
+        run: |
+          bash -n quickstart.sh
+          echo "✅ quickstart.sh syntax valid"
+
+      - name: Validate Docker Compose Configuration
+        run: |
+          docker compose config
+          echo "✅ docker-compose.yml configuration valid"
