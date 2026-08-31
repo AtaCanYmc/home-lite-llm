@@ -92,9 +92,10 @@ logs-prometheus: ## Logs: Follow live logs for Prometheus collector container
 validate: ## Diagnostics: Validate config.yaml syntax and check API keys against .env
 	@python3 scripts/validate_config.py
 
-health: ## Diagnostics: Check LiteLLM proxy health endpoint (http://localhost:4000/health)
-	@echo "🩺 Checking LiteLLM Proxy health..."
-	@curl -s -f http://localhost:4000/health && echo "\n$(GREEN)✅ LiteLLM Proxy is healthy!$(RESET)" || (echo "\n$(RED)❌ LiteLLM Proxy is unreachable!$(RESET)" && exit 1)
+health: ## Diagnostics: Check LiteLLM proxy readiness endpoint (http://localhost:4000/health/readiness)
+	@echo "🩺 Checking LiteLLM Proxy readiness..."
+	@curl -s -f http://localhost:4000/health/readiness && echo "\n$(GREEN)✅ LiteLLM Proxy is healthy & ready!$(RESET)" || (echo "\n$(RED)❌ LiteLLM Proxy is unreachable!$(RESET)" && exit 1)
+
 
 test-models: ## Diagnostics: Query available models from LiteLLM proxy
 	@echo "🤖 Querying active models list..."
