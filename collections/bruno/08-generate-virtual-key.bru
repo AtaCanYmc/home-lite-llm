@@ -1,0 +1,27 @@
+meta {
+  name: Generate Virtual API Key
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{base_url}}/key/generate
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "max_budget": 10.0,
+    "duration": "30d",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku", "gemini-2.0-flash"],
+    "metadata": {
+      "user": "developer-1",
+      "project": "core-backend"
+    }
+  }
+}

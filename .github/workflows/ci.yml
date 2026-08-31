@@ -2,9 +2,9 @@ name: CI & Configuration Validation
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   validate:
@@ -20,18 +20,35 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install PyYAML
-        run: python -m pip install pyyaml
-
-      - name: Validate config.yaml Syntax
+      - name: Install Python Dependencies
         run: |
-          python -c "import yaml; yaml.safe_load(open('config.yaml'))"
-          echo "✅ config.yaml syntax valid"
+          python -m pip install --upgrade pip
+          pip install pyyaml yamllint ruff
 
-      - name: Validate Bash Script (quickstart.sh)
+      - name: Lint YAML Files
+        run: |
+          yamllint -c .yamllint.yml .
+          echo "✅ YAML linting passed"
+
+      - name: Lint Python Scripts with Ruff
+        run: |
+          ruff check scripts/validate_config.py
+          echo "✅ Ruff Python linting passed"
+
+      - name: Validate config.yaml and Environment
+        run: |
+          python3 scripts/validate_config.py --env .env.example
+          echo "✅ config.yaml configuration valid"
+
+      - name: Validate Bash Scripts Syntax
         run: |
           bash -n quickstart.sh
-          echo "✅ quickstart.sh syntax valid"
+          bash -n scripts/backup_db.sh
+          bash -n scripts/restore_db.sh
+          bash -n tunnels/cloudflare/start-cloudflare.sh
+          bash -n tunnels/ngrok/start-ngrok.sh
+          bash -n tunnels/tailscale/start-tailscale.sh
+          echo "✅ Shell scripts syntax valid"
 
       - name: Create Environment File for CI
         run: cp .env.example .env
@@ -40,3 +57,10 @@ jobs:
         run: |
           docker compose config
           echo "✅ docker-compose.yml configuration valid"
+
+      - name: Validate Postman and Bruno Collections JSON
+        run: |
+          python3 -m json.tool collections/postman/LiteLLM_Gateway.postman_collection.json > /dev/null
+          python3 -m json.tool collections/postman/LiteLLM_Local_Environment.postman_environment.json > /dev/null
+          python3 -m json.tool collections/bruno/bruno.json > /dev/null
+          echo "✅ API Collections JSON valid"

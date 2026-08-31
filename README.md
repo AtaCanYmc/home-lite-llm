@@ -11,57 +11,161 @@
 <p align="center">
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License MIT" /></a>
   <a href="https://github.com/BerriAI/litellm"><img src="https://img.shields.io/badge/LiteLLM-v1.82.3-purple.svg" alt="LiteLLM Version" /></a>
-  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-18.6-blue.svg" alt="PostgreSQL 16.8" /></a>
+  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-18.6-blue.svg" alt="PostgreSQL 18.6" /></a>
   <a href="SECURITY.md"><img src="https://img.shields.io/badge/Security-Hardened-success.svg" alt="Security Hardened" /></a>
   <a href=".github/workflows/ci.yml"><img src="https://img.shields.io/badge/CI-Passing-brightgreen.svg" alt="CI Status" /></a>
+  <a href=".pre-commit-config.yaml"><img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white" alt="pre-commit" /></a>
 </p>
 
 ---
 
 ## 📋 Table of Contents
-- [⚡ Quickstart (Automated Setup)](#-quickstart-automated-setup)
+- [⚡ Quickstart (Interactive CLI Setup)](#-quickstart-interactive-cli-setup)
+- [🛠️ Makefile Command Reference](#️-makefile-command-reference)
+- [📦 Ready API Test Collections (Postman & Bruno)](#-ready-api-test-collections-postman--bruno)
+- [🔍 Configuration Validation & Diagnostics](#-configuration-validation--diagnostics)
+- [💾 Database Backup Routine & Disaster Recovery](#-database-backup-routine--disaster-recovery)
 - [🖥️ Dashboards & Web Interfaces Reference](#️-dashboards--web-interfaces-reference)
 - [🔒 Security, Observability & Resilience Architecture](#-security-observability--resilience-architecture)
-  - [1. Security & Authentication](#1-security--authentication)
-  - [2. Observability & Monitoring (Prometheus & Grafana Integration)](#2-observability--monitoring-prometheus--grafana-integration)
-  - [3. Resilience & Fallback Mechanisms](#3-resilience--fallback-mechanisms)
-  - [4. Data Persistence & Backup Scripts](#4-data-persistence--backup-scripts)
 - [🌐 Remote Access (Tunnels & VPN)](#-remote-access-tunnels--vpn)
-- [🤖 Automated CI/CD Workflow & Dependabot](#-automated-cicd-workflow--dependabot)
+- [🤖 Automated CI/CD Workflow & Quality Standards](#-automated-cicd-workflow--quality-standards)
 - [🔑 Obtaining Model Provider API Keys](#-obtaining-model-provider-api-keys)
 - [📁 Project Structure](#-project-structure)
-- [🛠️ Manual Setup Steps](#️-manual-setup-steps)
-  - [1. Create Environment File (.env)](#1-create-environment-file-env)
-  - [2. Database Options (Local Postgres vs. Supabase)](#2-database-options-local-postgres-vs-supabase)
-  - [3. Configure Models & Fallbacks (config.yaml)](#3-configure-models--fallbacks-configyaml)
-  - [4. Start Services (Docker Compose)](#4-start-services-docker-compose)
 - [🚀 Usage & Code Integration Examples](#-usage--code-integration-examples)
-  - [1. Health Check & Observability Dashboards](#1-health-check--observability-dashboards)
-  - [2. cURL Examples](#2-curl-examples)
-  - [3. Python Integration (OpenAI SDK & LangChain)](#3-python-integration-openai-sdk--langchain)
-  - [4. Node.js / TypeScript Integration (OpenAI SDK)](#4-nodejs--typescript-integration-openai-sdk)
 - [🔒 Security & Key Management (Admin UI)](#-security--key-management-admin-ui)
 - [📜 License & Community Policy](#-license--community-policy)
 
 ---
 
-## ⚡ Quickstart (Automated Setup)
+## ⚡ Quickstart (Interactive CLI Setup)
 
-Get up and running in seconds with the automated setup script:
+Get up and running effortlessly with the interactive onboarding wizard:
 
 ```bash
 chmod +x quickstart.sh && ./quickstart.sh
 ```
 
-The script automatically:
-1. Verifies Docker & Docker Compose dependencies.
-2. Creates your `.env` configuration file from `.env.example`.
-3. Automatically generates secure cryptographic keys for `MASTER_KEY` and `POSTGRES_PASSWORD`.
-4. Validates `config.yaml` syntax.
-5. Prompts you to add your model provider API keys and launches Docker Compose.
-6. *(Optional)* Sets up remote access so you can reach LiteLLM from outside your network — choose from **Cloudflare Tunnel**, **ngrok**, or **Tailscale** directly from the interactive menu.
+### 🧙‍♂️ What the Interactive Quickstart does:
+1. **System Checks**: Verifies Docker, Docker Compose, and required tooling.
+2. **Environment Generation**: Creates `.env` from template and automatically generates cryptographically secure secrets (`MASTER_KEY`, `POSTGRES_PASSWORD`, `GRAFANA_ADMIN_PASSWORD`).
+3. **Interactive Key Configuration**: Prompts you in the terminal for your AI provider keys (OpenAI, Anthropic, Gemini, DeepSeek, Groq, Mistral, OpenRouter, etc.) and safely writes them into `.env`.
+4. **Pre-flight Validation**: Automatically validates `config.yaml` syntax, model schemas, and fallback targets before launch.
+5. **Container Orchestration**: Starts Docker Compose services and verifies container health.
+6. **Remote Access Wizard**: Optionally sets up Cloudflare Tunnel, ngrok, or Tailscale for external device access.
 
-> See [tunnels/README.md](tunnels/README.md) for a full comparison of remote access methods.
+> Non-interactive mode (for automation/CI): `./quickstart.sh -y`
+
+---
+
+## 🛠️ Makefile Command Reference
+
+A comprehensive `Makefile` is included so you can manage your entire gateway with simple single-word commands:
+
+| Command | Category | Description |
+| :--- | :---: | :--- |
+| `make up` (or `make start`) | Lifecycle | Start all containers in background (`docker compose up -d`) |
+| `make down` (or `make stop`) | Lifecycle | Stop and remove running containers (`docker compose down`) |
+| `make restart` | Lifecycle | Restart all gateway services |
+| `make build` | Lifecycle | Rebuild images and start containers |
+| `make clean` | Lifecycle | Stop services and remove persistent data volumes (`docker compose down -v`) |
+| `make quickstart` | Lifecycle | Launch interactive quickstart wizard |
+| `make ps` (or `make status`) | Monitoring | Show status of running containers |
+| `make logs` | Logs | Stream live logs for all containers |
+| `make logs-litellm` | Logs | Stream live logs for LiteLLM proxy container |
+| `make logs-db` | Logs | Stream live logs for PostgreSQL database container |
+| `make logs-grafana` | Logs | Stream live logs for Grafana analytics container |
+| `make validate` | Diagnostics | Run deep syntax, schema, and `.env` cross-checks |
+| `make health` | Diagnostics | Test local proxy health endpoint (`http://localhost:4000/health`) |
+| `make test-models` | Diagnostics | Query active models from LiteLLM proxy with auth |
+| `make backup` | Database | Create timestamped compressed PostgreSQL backup (`.sql.gz`) |
+| `make restore FILE=...` | Database | Restore PostgreSQL database from backup archive |
+| `make lint` | Quality | Run pre-commit or validation checks across repository |
+| `make help` | Info | Print colorized help menu of all available targets |
+
+---
+
+## 📦 Ready API Test Collections (Postman & Bruno)
+
+Pre-built API collections are available in the [`collections/`](collections/) directory:
+
+```text
+collections/
+├── postman/
+│   ├── LiteLLM_Gateway.postman_collection.json         # Postman Collection v2.1
+│   └── LiteLLM_Local_Environment.postman_environment.json # Postman Environment Config
+└── bruno/
+    ├── bruno.json                                      # Bruno collection manifest
+    ├── collection.bru                                  # Bearer auth configuration
+    ├── environments/Local.bru                          # Bruno local environment
+    ├── 01-health-check.bru                             # Health status probe
+    ├── 02-list-models.bru                              # List OpenAI models
+    ├── 03-chat-gpt4o.bru                               # GPT-4o completion
+    ├── 04-chat-claude.bru                              # Claude 3.5 Sonnet completion
+    ├── 05-chat-gemini.bru                              # Gemini 2.0 Flash completion
+    ├── 06-chat-deepseek.bru                            # DeepSeek Chat completion
+    ├── 07-streaming-chat.bru                           # SSE stream completion
+    └── 08-generate-virtual-key.bru                     # Admin key generation
+```
+
+### Quick Import:
+- **Postman**: Import both files in `collections/postman/` and select the **LiteLLM Local Gateway** environment.
+- **Bruno**: Open the folder `collections/bruno/` directly in [Bruno](https://www.usebruno.com/).
+
+> See [collections/README.md](collections/README.md) for full endpoint schemas and testing examples.
+
+---
+
+## 🔍 Configuration Validation & Diagnostics
+
+Prevent misconfigurations before deploying with our built-in configuration validator (`scripts/validate_config.py`):
+
+```bash
+# Run validation check:
+make validate
+# or directly:
+python3 scripts/validate_config.py
+```
+
+### Features:
+- **Syntax & Schema Verification**: Parses `config.yaml` to ensure required sections (`model_list`, `router_settings`, `general_settings`) are valid.
+- **Fallback Integrity**: Verifies that all fallback targets exist in the defined models list.
+- **Environment Variable Cross-Check**: Scans all `os.environ/XYZ` references in `config.yaml` against `.env` and flags missing keys or unconfigured placeholder values.
+- **CLI Options**:
+  - `python3 scripts/validate_config.py --strict` (Fails if any referenced API key is missing or placeholder)
+  - `python3 scripts/validate_config.py --json` (Outputs structured JSON report for CI/CD)
+
+---
+
+## 💾 Database Backup Routine & Disaster Recovery
+
+Protect your virtual keys, user spend, and rate limit data stored in PostgreSQL with automated backup and restore scripts.
+
+### 1. Manual Backup & Restore
+```bash
+# Create compressed timestamped backup (.sql.gz) in ./backups/
+make backup
+
+# Restore from a backup:
+make restore FILE=backups/litellm_backup_20260901_120000.sql.gz
+```
+
+### 2. Automated Scheduled Backups (Crontab)
+To configure automated daily database backups at 02:00 AM:
+
+```bash
+# Open your user crontab
+crontab -e
+
+# Add the following entry (replace /path/to/home-lite-llm with your actual repository path):
+0 2 * * * cd /path/to/home-lite-llm && ./scripts/backup_db.sh -q >> /var/log/litellm_backup.log 2>&1
+```
+
+### Backup Script Highlights:
+- **Gzip Compression**: Compresses database dumps by default to save storage.
+- **Automated Retention**: Keeps the most recent 10 backups (customizable via `-k <num>`).
+- **Safe Disaster Recovery**: Sourcing `.env` credentials automatically with interactive confirmation safeguards.
+
+> See [scripts/README.md](scripts/README.md) for detailed flag references and advanced recovery workflows.
 
 ---
 
@@ -103,12 +207,6 @@ This deployment includes enterprise-grade production hardening:
 - **Automatic Fallbacks**: Configured in `config.yaml` so if a primary provider fails or hits rate limits, requests automatically failover (e.g. `gpt-4o` -> `gemini-2.0-flash` / `claude-3-5-sonnet`).
 - **Retries & Rate Limits**: Configured `num_retries: 3` and model RPM limits to prevent upstream ban/exhaustion.
 
-### 4. Data Persistence & Backup Scripts
-- **Persistent Volume**: Database state stored in `postgres_data` volume and Grafana dashboard data in `grafana_data` volume.
-- **Automated Backup & Restore Scripts**:
-  - Run database backup: `./scripts/backup_db.sh`
-  - Restore database: `./scripts/restore_db.sh <path_to_backup.sql>`
-
 ---
 
 ## 🌐 Remote Access (Tunnels & VPN)
@@ -137,9 +235,14 @@ Access your LiteLLM proxy from outside your home network — without opening por
 
 ---
 
-## 🤖 Automated CI/CD Workflow & Dependabot
+## 🤖 Automated CI/CD Workflow & Quality Standards
 
-- **GitHub Actions**: Automated CI workflow (`.github/workflows/ci.yml`) validates `config.yaml`, `quickstart.sh`, and `docker-compose.yml` on every pull request and push.
+- **Pre-commit Hooks**: Enforce YAML, Shell, Python, and JSON formatting with `.pre-commit-config.yaml`.
+  ```bash
+  pip install pre-commit && pre-commit install
+  make lint
+  ```
+- **GitHub Actions**: Automated CI workflow (`.github/workflows/ci.yml`) validates `config.yaml`, `scripts/validate_config.py`, shell scripts, API collections, and Docker Compose configurations on every pull request and push.
 - **Dependabot**: Configured (`.github/dependabot.yml`) for weekly automated updates of GitHub Actions and Docker Compose image versions.
 
 ---
@@ -169,80 +272,38 @@ To enable model routing, obtain API keys from your preferred AI model providers 
 ---
 
 ## 📁 Project Structure
-- `quickstart.sh` -> Automated quickstart setup script.
-- `docker-compose.yml` -> Production-hardened PostgreSQL, LiteLLM proxy, Prometheus, and Grafana services.
-- `config.yaml` -> Contains model routing, fallbacks, vLLM/Ollama settings, and observability options.
-- `.env` -> Stores sensitive API keys, credentials, and configuration flags.
-- `.env.example` -> Environment variable template file.
-- `SECURITY.md` -> Security policy & vulnerability reporting procedures.
-- `CONTRIBUTING.md` -> Contribution guidelines and development workflow.
-- `CODE_OF_CONDUCT.md` -> Community Code of Conduct.
-- `LICENSE.md` -> MIT License details.
-- `CHANGELOG.md` -> Version release history.
-- `SUPPORT.md` -> Support and troubleshooting guide.
-- `.github/workflows/ci.yml` -> Automated CI/CD validation workflow.
-- `.github/dependabot.yml` -> Automated dependency update configuration.
-- `scripts/backup_db.sh` -> Automated database backup script.
-- `scripts/restore_db.sh` -> Automated database restore script.
-- `monitoring/prometheus.yml` -> Prometheus scraping configuration.
-- `monitoring/grafana/provisioning` -> Automatic Grafana datasource provisioning.
-- `assets/banner.jpg` -> Enterprise project logo banner.
 
----
-
-## 🛠️ Manual Setup Steps
-
-### 1. Create Environment File (.env)
-Create a `.env` file in the root directory or copy from `.env.example`:
-
-```bash
-cp .env.example .env
-```
-
-Open `.env` and fill in your variables:
-
-```env
-MASTER_KEY=sk-your-secure-and-long-master-key-here
-POSTGRES_PASSWORD=your_postgres_password_here
-OPENAI_API_KEY=your_openai_api_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
-```
-
-### 2. Database Options (Local Postgres vs. Supabase)
-
-#### Option A: Local PostgreSQL Container (Default)
-By default, Docker Compose will launch a local PostgreSQL container (`db`). Just set `POSTGRES_PASSWORD` in `.env`.
-
-#### Option B: Supabase / External PostgreSQL
-If you prefer to use **Supabase** (or any cloud-hosted Postgres) instead of running a local database container:
-1. Retrieve your connection string from **Supabase Dashboard -> Project Settings -> Database** (Use Connection Pooling on port `6543` or Direct connection on port `5432`).
-2. Uncomment and set `DATABASE_URL` in your `.env` file:
-   ```env
-   DATABASE_URL=postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?sslmode=require
-   ```
-3. Run only the LiteLLM proxy container:
-   ```bash
-   docker compose up -d litellm
-   ```
-
-### 3. Configure Models & Fallbacks (config.yaml)
-Customize `config.yaml` to specify which models, fallback rules, and observability settings LiteLLM will serve.
-
-### 4. Start Services (Docker Compose)
-Run PostgreSQL, LiteLLM Proxy, Prometheus, and Grafana in the background using Docker Compose:
-
-```bash
-docker compose up -d
-```
-
-To inspect service status and logs:
-
-```bash
-# List service status
-docker compose ps
-
-# Follow logs
-docker compose logs -f litellm
+```text
+├── Makefile                                    # Management commands (make up, logs, backup, etc.)
+├── quickstart.sh                               # Interactive setup CLI wizard
+├── docker-compose.yml                          # Production PostgreSQL, LiteLLM, Prometheus & Grafana
+├── config.yaml                                 # LiteLLM routing, fallbacks, and model settings
+├── .env.example                                # Environment variable template
+├── .pre-commit-config.yaml                     # Pre-commit code quality hooks
+├── .yamllint.yml                               # YAML linter configuration
+├── collections/                                # Ready API collections
+│   ├── README.md                               # API collection import documentation
+│   ├── postman/                                # Postman collection & local environment
+│   └── bruno/                                  # Bruno collection & requests
+├── scripts/                                    # Maintenance & diagnostic scripts
+│   ├── README.md                               # Scripts usage & crontab guide
+│   ├── validate_config.py                      # Configuration validator
+│   ├── backup_db.sh                            # Timestamped compressed PostgreSQL backup
+│   └── restore_db.sh                           # PostgreSQL disaster recovery restore
+├── monitoring/                                 # Observability configs
+│   ├── prometheus.yml                          # Metrics scraping configuration
+│   └── grafana/provisioning/                   # Grafana datasource provisioning
+├── tunnels/                                    # Remote access guides & scripts
+│   ├── README.md                               # Tunnel comparison overview
+│   ├── cloudflare/                             # Cloudflare Tunnel setup
+│   ├── ngrok/                                  # ngrok tunnel setup
+│   ├── tailscale/                              # Tailscale VPN setup
+│   └── port-forwarding/                        # Dynamic DNS & Port Forwarding
+├── SECURITY.md                                 # Security policy
+├── CONTRIBUTING.md                             # Contribution guidelines
+├── CODE_OF_CONDUCT.md                          # Code of conduct
+├── CHANGELOG.md                                # Version release log
+└── LICENSE.md                                  # MIT License
 ```
 
 ---

@@ -1,0 +1,29 @@
+meta {
+  name: Streaming Chat Completion
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{base_url}}/v1/chat/completions
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Accept: text/event-stream
+}
+
+body:json {
+  {
+    "model": "gpt-4o-mini",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Count from 1 to 5 with short words."
+      }
+    ],
+    "stream": true
+  }
+}

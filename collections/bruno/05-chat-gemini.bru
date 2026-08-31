@@ -1,0 +1,27 @@
+meta {
+  name: Chat - Google Gemini 2.0 Flash
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base_url}}/v1/chat/completions
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "model": "gemini-2.0-flash",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Provide 3 best practices for configuring LiteLLM rate limits."
+      }
+    ]
+  }
+}

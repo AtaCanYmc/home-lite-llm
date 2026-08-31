@@ -1,0 +1,323 @@
+{
+  "info": {
+    "_postman_id": "a91e5927-1428-4dc8-a89e-lite-llm-gateway",
+    "name": "LiteLLM Proxy Gateway",
+    "description": "Comprehensive API collection for LiteLLM Gateway, covering OpenAI-compatible endpoints, multi-provider chat completions, streaming, healthchecks, and virtual key management.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{master_key}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "01 - Health & Observability",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Checks if the LiteLLM proxy instance and database connection are healthy."
+          },
+          "response": []
+        },
+        {
+          "name": "List Active Models",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/models",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "models"]
+            },
+            "description": "Returns all configured and available LLM models in OpenAI format."
+          },
+          "response": []
+        },
+        {
+          "name": "Model Information",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/model/info",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "model", "info"]
+            },
+            "description": "Returns detailed provider and pricing information for configured models."
+          },
+          "response": []
+        },
+        {
+          "name": "Prometheus Metrics",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/metrics",
+              "host": ["{{base_url}}"],
+              "path": ["metrics"]
+            },
+            "description": "Scrapes Prometheus metrics for requests, latency, tokens, and errors."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Chat Completions",
+      "item": [
+        {
+          "name": "OpenAI - GPT-4o",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"gpt-4o\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a helpful and precise coding assistant.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Explain how LiteLLM load balances across multiple providers in 2 concise sentences.\"\n    }\n  ],\n  \"temperature\": 0.7\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/chat/completions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "chat", "completions"]
+            },
+            "description": "Standard non-streaming chat completion request using GPT-4o."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthropic - Claude 3.5 Sonnet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"claude-3-5-sonnet\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"What are the main advantages of a reverse proxy for LLM APIs?\"\n    }\n  ],\n  \"max_tokens\": 250\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/chat/completions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "chat", "completions"]
+            },
+            "description": "Chat completion routed to Anthropic Claude 3.5 Sonnet."
+          },
+          "response": []
+        },
+        {
+          "name": "Google - Gemini 2.0 Flash",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"gemini-2.0-flash\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Write a quick Python one-liner to verify a JWT token.\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/chat/completions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "chat", "completions"]
+            },
+            "description": "Ultra fast completion using Google Gemini 2.0 Flash."
+          },
+          "response": []
+        },
+        {
+          "name": "DeepSeek - Chat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"deepseek-chat\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Hello DeepSeek! What is the capital of Turkey?\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/chat/completions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "chat", "completions"]
+            },
+            "description": "Cost-efficient completion using DeepSeek Chat."
+          },
+          "response": []
+        },
+        {
+          "name": "Streaming Chat Completion (SSE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Count from 1 to 10 slowly with words.\"\n    }\n  ],\n  \"stream\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/chat/completions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "chat", "completions"]
+            },
+            "description": "Server-Sent Events (SSE) streaming token output."
+          },
+          "response": []
+        },
+        {
+          "name": "Function / Tool Calling",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"gpt-4o\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"What is the weather in Istanbul right now?\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"type\": \"function\",\n      \"function\": {\n        \"name\": \"get_current_weather\",\n        \"description\": \"Get current weather in a city\",\n        \"parameters\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"location\": {\n              \"type\": \"string\",\n              \"description\": \"City and state/country, e.g. Istanbul, Turkey\"\n            },\n            \"unit\": {\n              \"type\": \"string\",\n              \"enum\": [\"celsius\", \"fahrenheit\"]\n            }\n          },\n          \"required\": [\"location\"]\n        }\n      }\n    }\n  ],\n  \"tool_choice\": \"auto\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/chat/completions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "chat", "completions"]
+            },
+            "description": "OpenAI schema tool / function calling request."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Admin & Key Management",
+      "item": [
+        {
+          "name": "Generate Virtual API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"max_budget\": 10.0,\n  \"duration\": \"30d\",\n  \"models\": [\"gpt-4o-mini\", \"claude-3-5-haiku\", \"gemini-2.0-flash\"],\n  \"metadata\": {\n    \"user\": \"frontend-developer-1\",\n    \"project\": \"mobile-app-v2\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/key/generate",
+              "host": ["{{base_url}}"],
+              "path": ["key", "generate"]
+            },
+            "description": "Generates a budget-constrained virtual key for a specific user, team, or project."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Key Information & Spend",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/key/info?key={{virtual_key}}",
+              "host": ["{{base_url}}"],
+              "path": ["key", "info"],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "{{virtual_key}}",
+                  "description": "The virtual API key to inspect"
+                }
+              ]
+            },
+            "description": "Retrieves real-time spend, remaining budget, and limits for a virtual API key."
+          },
+          "response": []
+        },
+        {
+          "name": "Calculate Spend / Pricing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"gpt-4o\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Hello world!\"\n    }\n  ],\n  \"response\": {\n    \"choices\": [\n      {\n        \"message\": {\n          \"role\": \"assistant\",\n          \"content\": \"Hello! How can I help you today?\"\n        }\n      }\n    ],\n    \"usage\": {\n      \"prompt_tokens\": 10,\n      \"completion_tokens\": 9,\n      \"total_tokens\": 19\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/spend/calculate",
+              "host": ["{{base_url}}"],
+              "path": ["spend", "calculate"]
+            },
+            "description": "Calculates the USD cost for a given model inference usage."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "master_key",
+      "value": "sk-your-master-key-here",
+      "type": "string"
+    },
+    {
+      "key": "virtual_key",
+      "value": "sk-your-virtual-key-here",
+      "type": "string"
+    }
+  ]
+}
