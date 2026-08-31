@@ -26,6 +26,7 @@
   - [2. Observability & Monitoring (Prometheus & Grafana Integration)](#2-observability--monitoring-prometheus--grafana-integration)
   - [3. Resilience & Fallback Mechanisms](#3-resilience--fallback-mechanisms)
   - [4. Data Persistence & Backup Scripts](#4-data-persistence--backup-scripts)
+- [🌐 Remote Access (Tunnels & VPN)](#-remote-access-tunnels--vpn)
 - [🤖 Automated CI/CD Workflow & Dependabot](#-automated-cicd-workflow--dependabot)
 - [🔑 Obtaining Model Provider API Keys](#-obtaining-model-provider-api-keys)
 - [📁 Project Structure](#-project-structure)
@@ -104,6 +105,32 @@ This deployment includes enterprise-grade production hardening:
 - **Automated Backup & Restore Scripts**:
   - Run database backup: `./scripts/backup_db.sh`
   - Restore database: `./scripts/restore_db.sh <path_to_backup.sql>`
+
+---
+
+## 🌐 Remote Access (Tunnels & VPN)
+
+Access your LiteLLM proxy from outside your home network — without opening ports or needing a static IP.
+
+| Method | Best For | Security | Free |
+|:---|:---|:---:|:---:|
+| **[Cloudflare Tunnel](tunnels/cloudflare/README.md)** | Sharing with others, custom domain | 🟢 High | ✅ |
+| **[ngrok](tunnels/ngrok/README.md)** | Quick testing & development | 🟡 Medium | ✅ |
+| **[Tailscale](tunnels/tailscale/README.md)** | Personal devices only (most secure) | 🟢 Highest | ✅ |
+| **[Port Forwarding](tunnels/port-forwarding/README.md)** | Static IP / full control | 🔴 Lower | ✅ |
+
+```bash
+# Cloudflare Tunnel (free, no account needed)
+./tunnels/cloudflare/start-cloudflare.sh
+
+# ngrok (one command)
+./tunnels/ngrok/start-ngrok.sh
+
+# Tailscale (most secure, VPN-based)
+./tunnels/tailscale/start-tailscale.sh
+```
+
+> See **[tunnels/README.md](tunnels/README.md)** for a full comparison and detailed setup guides.
 
 ---
 

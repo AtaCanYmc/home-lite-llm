@@ -1,0 +1,39 @@
+# Cloudflare Tunnel — Docker Compose Override
+#
+# Usage:
+#   Temporary (TryCloudflare):
+#     docker compose -f docker-compose.yml -f tunnels/cloudflare/docker-compose.cloudflare.yml up -d
+#
+#   Permanent (your own domain):
+#     TUNNEL_TOKEN=<token> docker compose -f docker-compose.yml -f tunnels/cloudflare/docker-compose.cloudflare.yml up -d
+#
+# Or via the helper script:
+#   ./tunnels/cloudflare/start-cloudflare.sh
+
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: litellm-cloudflared
+    restart: unless-stopped
+    # If TUNNEL_TOKEN is set: named (permanent) tunnel; otherwise: temporary TryCloudflare tunnel
+    command: >
+      sh -c '
+        if [ -n "$$TUNNEL_TOKEN" ]; then
+          echo "🔒 Starting permanent Cloudflare tunnel...";
+          cloudflared tunnel --no-autoupdate run --token $$TUNNEL_TOKEN;
+        else
+          echo "⚡ Starting temporary TryCloudflare tunnel (http://litellm:4000)...";
+          cloudflared tunnel --no-autoupdate --url http://litellm:4000;
+        fi
+      '
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN:-}
+    networks:
+      - litellm-network
+    depends_on:
+      - litellm
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"

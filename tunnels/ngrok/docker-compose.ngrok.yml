@@ -1,0 +1,42 @@
+# ngrok Integration — Docker Compose Override
+#
+# Usage:
+#   Free (temporary URL):
+#     docker compose -f docker-compose.yml -f tunnels/ngrok/docker-compose.ngrok.yml up -d
+#
+#   With AuthToken (ngrok dashboard + advanced features):
+#     NGROK_AUTHTOKEN=<token> docker compose -f docker-compose.yml -f tunnels/ngrok/docker-compose.ngrok.yml up -d
+#
+# Or via the helper script:
+#   ./tunnels/ngrok/start-ngrok.sh
+
+services:
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: litellm-ngrok
+    restart: unless-stopped
+    # If NGROK_AUTHTOKEN is set: authenticated mode; otherwise: free anonymous mode
+    command: >
+      sh -c '
+        if [ -n "$$NGROK_AUTHTOKEN" ]; then
+          echo "🔑 Starting ngrok with AuthToken...";
+          ngrok http http://litellm:4000 --log=stdout;
+        else
+          echo "⚡ Starting ngrok in anonymous mode (free, temporary URL)...";
+          ngrok http http://litellm:4000 --log=stdout;
+        fi
+      '
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
+    ports:
+      # ngrok web UI — inspect tunnel URL and live traffic
+      - "4040:4040"
+    networks:
+      - litellm-network
+    depends_on:
+      - litellm
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
