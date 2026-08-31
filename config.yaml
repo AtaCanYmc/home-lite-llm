@@ -1,5 +1,5 @@
 # LiteLLM Proxy Configuration
-# Define models and mapping parameters here
+# Define models, router settings, fallbacks, and general observability options
 
 model_list:
   # -----------------------------------------------------------------
@@ -9,11 +9,13 @@ model_list:
     litellm_params:
       model: openai/gpt-4o
       api_key: os.environ/OPENAI_API_KEY
+      rpm: 500
 
   - model_name: gpt-4o-mini
     litellm_params:
       model: openai/gpt-4o-mini
       api_key: os.environ/OPENAI_API_KEY
+      rpm: 1000
 
   - model_name: o3-mini
     litellm_params:
@@ -27,6 +29,7 @@ model_list:
     litellm_params:
       model: anthropic/claude-3-5-sonnet-20241022
       api_key: os.environ/ANTHROPIC_API_KEY
+      rpm: 300
 
   - model_name: claude-3-5-haiku
     litellm_params:
@@ -153,5 +156,21 @@ model_list:
       model: ollama/llama3
       api_base: os.environ/OLLAMA_API_BASE
 
+# -----------------------------------------------------------------
+# Router & Resilience Settings (Automatic Fallbacks & Retries)
+# -----------------------------------------------------------------
+router_settings:
+  num_retries: 3
+  timeout: 30
+  fallbacks:
+    - gpt-4o: ["gemini-2.0-flash", "claude-3-5-sonnet"]
+    - claude-3-5-sonnet: ["gpt-4o", "gemini-2.0-flash"]
+    - deepseek-chat: ["gpt-4o-mini", "gemini-1.5-flash"]
+
+# -----------------------------------------------------------------
+# General & Observability Settings
+# -----------------------------------------------------------------
 general_settings:
   master_key: os.environ/MASTER_KEY
+  json_logs: true
+  prometheus: true

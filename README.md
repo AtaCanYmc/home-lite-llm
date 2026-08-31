@@ -22,19 +22,35 @@ The script automatically:
 1. Verifies Docker & Docker Compose dependencies.
 2. Creates your `.env` configuration file from `.env.example`.
 3. Automatically generates secure cryptographic keys for `MASTER_KEY` and `POSTGRES_PASSWORD`.
-4. Prompts you to add your model provider API keys and launches Docker Compose.
+4. Validates `config.yaml` syntax.
+5. Prompts you to add your model provider API keys and launches Docker Compose.
 
 ---
 
-## 🔒 Production Hardening & Security Features
+## 🔒 Security, Observability & Resilience Architecture
 
-This configuration includes production-grade reliability and security defaults:
+This deployment includes enterprise-grade production hardening:
 
-- **Healthchecks & Managed Dependencies**: `db` includes a `pg_isready` health check; LiteLLM waits for `service_healthy` before initializing to prevent startup connection crashes.
-- **Pinned Image Versions**: Fixed version tags (`postgres:16.8-alpine`, `ghcr.io/berriai/litellm:main-v1.61.1`) to avoid breaking changes from `:latest`.
-- **Log Rotation**: Configured `json-file` logging driver with `max-size: "10m"` and `max-file: "3"` to prevent host disk bloat during heavy LLM streaming.
-- **Network Isolation**: Dedicated `litellm-network` bridge network. Database port `5432` is kept strictly private within the container network.
-- **Restart Policy**: Configured `restart: unless-stopped` on all services for automatic recovery after crashes or system reboots.
+### 1. Security & Authentication
+- **Crypto-Random Master Key**: Automatically generated strong hex keys prevent unauthorized API usage.
+- **Hashed API Key Storage**: LiteLLM hashes all virtual keys in PostgreSQL before storing them.
+- **Private Database Network**: Database port `5432` is bound strictly to `litellm-network` and is never exposed externally.
+
+### 2. Observability & Telemetry
+- **Prometheus Metrics**: Metrics endpoint available at `http://localhost:4000/metrics` for scraping by Prometheus & Grafana (tracks token counts, latency, 429/500 status codes).
+- **Structured JSON Logging**: Enabled `json_logs: true` in `config.yaml` for seamless parsing by Loki, Datadog, or AWS CloudWatch.
+- **Log Rotation**: Host disk bloat prevention via Docker `json-file` driver (`max-size: "10m"`, `max-file: "3"`).
+
+### 3. Resilience & Fallback Mechanisms
+- **Automatic Fallbacks**: Configured in `config.yaml` so if a primary provider fails or hits rate limits, requests automatically failover (e.g. `gpt-4o` -> `gemini-2.0-flash` / `claude-3-5-sonnet`).
+- **Retries & Rate Limits**: Configured `num_retries: 3` and model RPM limits to prevent upstream ban/exhaustion.
+
+### 4. Data Persistence & Backup
+- **Persistent Volume**: Database state stored in `postgres_data` volume.
+- **Backup Command**: Dump your PostgreSQL database at any time:
+  ```bash
+  docker exec litellm-db pg_dump -U postgres litellm > backup_$(date +%Y%m%d).sql
+  ```
 
 ---
 
@@ -64,7 +80,7 @@ To enable model routing, obtain API keys from your preferred AI model providers 
 ## 📁 Project Structure
 - `quickstart.sh` -> Automated quickstart setup script.
 - `docker-compose.yml` -> Production-hardened PostgreSQL database and LiteLLM proxy services.
-- `config.yaml` -> Contains model routing and proxy configurations.
+- `config.yaml` -> Contains model routing, fallbacks, and observability options.
 - `.env` -> Stores sensitive API keys and database credentials.
 - `.env.example` -> Environment variable template file.
 - `assets/logo.jpg` -> Project logo banner.
@@ -106,10 +122,8 @@ If you prefer to use **Supabase** (or any cloud-hosted Postgres) instead of runn
    docker compose up -d litellm
    ```
 
-### 3. Configure Models (config.yaml)
-Customize `config.yaml` to specify which models and settings LiteLLM will serve.
-
-Default supported models include OpenAI, Claude, Gemini, DeepSeek, Mistral, Groq, Cohere, Bedrock, Azure, Ollama, etc.
+### 3. Configure Models & Fallbacks (config.yaml)
+Customize `config.yaml` to specify which models, fallback rules, and observability settings LiteLLM will serve.
 
 ### 4. Start Services (Docker Compose)
 Run PostgreSQL and LiteLLM Proxy in the background using Docker Compose:
@@ -132,11 +146,15 @@ docker compose logs -f litellm
 
 ## 🚀 Usage & Code Integration Examples
 
-### 1. Health Check
-Verify that the LiteLLM proxy server is running and ready:
+### 1. Health Check & Metrics
+Verify that the LiteLLM proxy server is running:
 
 ```bash
+# Health Check
 curl http://localhost:4000/health
+
+# Prometheus Metrics
+curl http://localhost:4000/metrics
 ```
 
 ---

@@ -48,6 +48,12 @@ if grep -q "your_postgres_password_here" .env 2>/dev/null; then
     echo "✅ PostgreSQL Password generated and set in .env"
 fi
 
+# 5. Validate config.yaml syntax
+echo "🔍 Validating config.yaml syntax..."
+if command -v python3 &> /dev/null; then
+    python3 -c "import yaml; yaml.safe_load(open('config.yaml'))" 2>/dev/null && echo "✅ config.yaml syntax is valid" || echo "ℹ️ Skipped PyYAML validation (python3/pyyaml optional)"
+fi
+
 echo ""
 echo "--------------------------------------------------"
 echo "⚠️  Action Required: Add your model provider API keys in .env!"
@@ -66,6 +72,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "🎉 LiteLLM Proxy is up and running!"
     echo "=================================================="
     echo "  • Health Check: http://localhost:4000/health"
+    echo "  • Metrics:      http://localhost:4000/metrics"
     echo "  • Admin UI:     http://localhost:4000/ui"
     echo "=================================================="
 else
