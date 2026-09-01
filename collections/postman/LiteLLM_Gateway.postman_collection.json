@@ -220,6 +220,9 @@
               "host": ["{{base_url}}"],
               "path": ["v1", "chat", "completions"]
             },
+            "description": "Blazing fast chat completion using Groq LPU inference engine."
+          },
+          "response": []
         },
         {
           "name": "Local - Ollama (Llama 3.3 / DeepSeek-R1)",
