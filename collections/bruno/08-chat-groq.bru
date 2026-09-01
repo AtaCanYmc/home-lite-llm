@@ -1,0 +1,32 @@
+meta {
+  name: Chat - Groq Llama 3.3 70B (Ultra-fast)
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{base_url}}/v1/chat/completions
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "model": "groq-llama-3.3-70b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful and ultra-fast assistant powered by Groq LPU."
+      },
+      {
+        "role": "user",
+        "content": "Provide 3 concise advantages of LPU-based LLM inference."
+      }
+    ],
+    "temperature": 0.6
+  }
+}

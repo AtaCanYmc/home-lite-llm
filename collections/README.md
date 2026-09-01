@@ -13,7 +13,7 @@ collections/
 │   └── LiteLLM_Local_Environment.postman_environment.json # Postman Environment Config
 ├── bruno/
 │   ├── bruno.json                                      # Bruno collection manifest
-│   ├── collection.bru                                  # Global Bearer token auth
+│   ├── collection.bru                                  # Global Bearer token auth & default vars
 │   ├── environments/
 │   │   └── Local.bru                                   # Local variables (base_url, master_key)
 │   ├── 01-health-check.bru                             # Health status probe
@@ -22,9 +22,17 @@ collections/
 │   ├── 04-chat-claude.bru                              # Claude 3.5 Sonnet completion
 │   ├── 05-chat-gemini.bru                              # Gemini 2.0 Flash completion
 │   ├── 06-chat-deepseek.bru                            # DeepSeek Chat completion
-│   ├── 07-streaming-chat.bru                           # Server-Sent Events stream
-│   └── 08-generate-virtual-key.bru                     # Admin key generation
+│   ├── 07-chat-grok.bru                                # xAI Grok 2 completion
+│   ├── 08-chat-groq.bru                                # Groq Llama 3.3 70B completion
+│   ├── 09-chat-local-ollama.bru                        # Ollama local inference (Llama 3.3/DeepSeek-R1)
+│   ├── 10-chat-local-lmstudio.bru                      # LM Studio local inference
+│   ├── 11-chat-local-vllm.bru                          # vLLM GPU inference server
+│   ├── 12-streaming-chat.bru                           # Server-Sent Events stream
+│   └── 13-generate-virtual-key.bru                     # Admin key generation
 └── README.md
+
+
+
 ```
 
 ---

@@ -179,6 +179,118 @@
           "response": []
         },
         {
+          "name": "xAI - Grok 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"grok-2\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Grok, an AI developed by xAI.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Tell me an interesting fun fact about space exploration.\"\n    }\n  ],\n  \"temperature\": 0.7\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/chat/completions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "chat", "completions"]
+            },
+            "description": "Chat completion using xAI Grok 2."
+          },
+          "response": []
+        },
+        {
+          "name": "Groq - Llama 3.3 70B (Ultra-fast)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"groq-llama-3.3-70b\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a lightning-fast AI assistant powered by Groq LPU inference.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Explain latency vs throughput in high performance computing in 3 bullets.\"\n    }\n  ],\n  \"temperature\": 0.6\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/chat/completions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "chat", "completions"]
+            },
+        },
+        {
+          "name": "Local - Ollama (Llama 3.3 / DeepSeek-R1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"ollama-llama3.3\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a private local AI running on Ollama.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Explain how local inference preserves data privacy in 2 sentences.\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/chat/completions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "chat", "completions"]
+            },
+            "description": "Local offline inference running on Ollama."
+          },
+          "response": []
+        },
+        {
+          "name": "Local - LM Studio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"lmstudio-local\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Hello from LiteLLM via LM Studio!\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/chat/completions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "chat", "completions"]
+            },
+            "description": "Local OpenAI-compatible inference via LM Studio."
+          },
+          "response": []
+        },
+        {
+          "name": "Local - vLLM Engine",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"vllm-llama3\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Explain KV cache paging in vLLM.\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/chat/completions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "chat", "completions"]
+            },
+            "description": "High throughput local GPU inference via vLLM."
+          },
+          "response": []
+        },
+        {
           "name": "Streaming Chat Completion (SSE)",
           "request": {
             "method": "POST",

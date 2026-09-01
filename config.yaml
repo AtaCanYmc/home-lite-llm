@@ -68,8 +68,27 @@ model_list:
       api_key: os.environ/DEEPSEEK_API_KEY
 
   # -----------------------------------------------------------------
+  # xAI (Grok) Models
+  # -----------------------------------------------------------------
+  - model_name: grok-2
+    litellm_params:
+      model: xai/grok-2-1212
+      api_key: os.environ/XAI_API_KEY
+
+  - model_name: grok-2-vision
+    litellm_params:
+      model: xai/grok-2-vision-1212
+      api_key: os.environ/XAI_API_KEY
+
+  - model_name: grok-beta
+    litellm_params:
+      model: xai/grok-beta
+      api_key: os.environ/XAI_API_KEY
+
+  # -----------------------------------------------------------------
   # Mistral AI Models
   # -----------------------------------------------------------------
+
   - model_name: mistral-large
     litellm_params:
       model: mistral/mistral-large-latest
@@ -81,12 +100,35 @@ model_list:
       api_key: os.environ/MISTRAL_API_KEY
 
   # -----------------------------------------------------------------
-  # Groq Models
+  # Groq Models (Ultra-fast LPU Inference)
   # -----------------------------------------------------------------
   - model_name: groq-llama-3.3-70b
     litellm_params:
       model: groq/llama-3.3-70b-versatile
       api_key: os.environ/GROQ_API_KEY
+      rpm: 1000
+
+  - model_name: groq-llama-3.1-8b
+    litellm_params:
+      model: groq/llama-3.1-8b-instant
+      api_key: os.environ/GROQ_API_KEY
+      rpm: 1000
+
+  - model_name: groq-deepseek-r1-70b
+    litellm_params:
+      model: groq/deepseek-r1-distill-llama-70b
+      api_key: os.environ/GROQ_API_KEY
+
+  - model_name: groq-gemma2-9b
+    litellm_params:
+      model: groq/gemma2-9b-it
+      api_key: os.environ/GROQ_API_KEY
+
+  - model_name: groq-mixtral-8x7b
+    litellm_params:
+      model: groq/mixtral-8x7b-32768
+      api_key: os.environ/GROQ_API_KEY
+
 
   # -----------------------------------------------------------------
   # Cohere Models
@@ -149,21 +191,71 @@ model_list:
       aws_region_name: os.environ/AWS_REGION_NAME
 
   # -----------------------------------------------------------------
-  # Ollama (Local Models)
+  # Local Models — Ollama
   # -----------------------------------------------------------------
-  - model_name: ollama-llama3
+  - model_name: ollama-llama3.3
     litellm_params:
-      model: ollama/llama3
+      model: ollama/llama3.3
+      api_base: os.environ/OLLAMA_API_BASE
+
+  - model_name: ollama-llama3.1
+    litellm_params:
+      model: ollama/llama3.1
+      api_base: os.environ/OLLAMA_API_BASE
+
+  - model_name: ollama-deepseek-r1
+    litellm_params:
+      model: ollama/deepseek-r1
+      api_base: os.environ/OLLAMA_API_BASE
+
+  - model_name: ollama-qwen2.5
+    litellm_params:
+      model: ollama/qwen2.5
+      api_base: os.environ/OLLAMA_API_BASE
+
+  - model_name: ollama-mistral
+    litellm_params:
+      model: ollama/mistral
+      api_base: os.environ/OLLAMA_API_BASE
+
+  - model_name: ollama-nomic-embed
+    litellm_params:
+      model: ollama/nomic-embed-text
       api_base: os.environ/OLLAMA_API_BASE
 
   # -----------------------------------------------------------------
-  # vLLM / Custom OpenAI-Compatible Local Inference Server
+  # Local Models — LM Studio (OpenAI Compatible API)
+  # -----------------------------------------------------------------
+  - model_name: lmstudio-local
+    litellm_params:
+      model: openai/local-model
+      api_base: os.environ/LMSTUDIO_API_BASE
+      api_key: "not-needed"
+
+  # -----------------------------------------------------------------
+  # Local Models — vLLM Inference Server
   # -----------------------------------------------------------------
   - model_name: vllm-llama3
     litellm_params:
       model: openai/meta-llama/Meta-Llama-3-8B-Instruct
-      api_base: http://host.docker.internal:8000/v1
+      api_base: os.environ/VLLM_API_BASE
       api_key: "NONE"
+
+  - model_name: vllm-deepseek-r1
+    litellm_params:
+      model: openai/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+      api_base: os.environ/VLLM_API_BASE
+      api_key: "NONE"
+
+  # -----------------------------------------------------------------
+  # Local Models — LocalAI / llama.cpp Server
+  # -----------------------------------------------------------------
+  - model_name: localai-model
+    litellm_params:
+      model: openai/local-model
+      api_base: os.environ/LOCALAI_API_BASE
+      api_key: "NONE"
+
 
 # -----------------------------------------------------------------
 # Router & Resilience Settings (Automatic Fallbacks & Retries)

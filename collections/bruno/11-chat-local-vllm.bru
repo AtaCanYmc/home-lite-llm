@@ -1,0 +1,27 @@
+meta {
+  name: Chat - Local vLLM Engine
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{base_url}}/v1/chat/completions
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "model": "vllm-llama3",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain throughput advantages of continuous batching in vLLM."
+      }
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 meta {
   name: Generate Virtual API Key
   type: http
-  seq: 8
+  seq: 13
 }
 
 post {
@@ -18,7 +18,7 @@ body:json {
   {
     "max_budget": 10.0,
     "duration": "30d",
-    "models": ["gpt-4o-mini", "claude-3-5-haiku", "gemini-2.0-flash"],
+    "models": ["gpt-4o-mini", "claude-3-5-haiku", "gemini-2.0-flash", "groq-llama-3.3-70b", "ollama-llama3.3", "grok-2"],
     "metadata": {
       "user": "developer-1",
       "project": "core-backend"

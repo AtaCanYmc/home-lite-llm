@@ -196,6 +196,14 @@ if [ "$NON_INTERACTIVE" = false ] && [ "$SKIP_KEYS" = false ]; then
             echo -e "   ${GREEN}✔ Saved DEEPSEEK_API_KEY${RESET}"
         fi
 
+        # xAI (Grok)
+        read -r -p "🔹 xAI (Grok) API Key (xai-...): " IN_XAI
+        if [ -n "$IN_XAI" ]; then
+            set_env_var "XAI_API_KEY" "$IN_XAI"
+            echo -e "   ${GREEN}✔ Saved XAI_API_KEY${RESET}"
+        fi
+
+
         # Groq
         read -r -p "🔹 Groq API Key (gsk_...): " IN_GROQ
         if [ -n "$IN_GROQ" ]; then
