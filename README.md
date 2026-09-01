@@ -21,7 +21,9 @@
 
 ## 📋 Table of Contents
 - [⚡ Quickstart (Interactive CLI Setup)](#-quickstart-interactive-cli-setup)
+- [🌐 Client & IDE Integration Guide (Cursor, Continue, Aider, Open WebUI)](docs/INTEGRATION_GUIDE.md)
 - [🛠️ Makefile Command Reference](#️-makefile-command-reference)
+
 - [📦 Ready API Test Collections (Postman & Bruno)](#-ready-api-test-collections-postman--bruno)
 - [🔍 Configuration Validation & Diagnostics](#-configuration-validation--diagnostics)
 - [💾 Database Backup Routine & Disaster Recovery](#-database-backup-routine--disaster-recovery)
