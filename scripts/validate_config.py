@@ -68,25 +68,24 @@ def parse_simple_yaml(text: str) -> dict:
                         current_map = current_model["litellm_params"]
                     else:
                         current_model[k] = v
-            elif current_model is not None:
-                if ":" in stripped:
-                    k, v = stripped.split(":", 1)
-                    k = k.strip()
-                    v = v.strip().strip("'\"")
-                    if k == "litellm_params":
-                        current_model["litellm_params"] = {}
-                        current_map = current_model["litellm_params"]
-                    elif current_map is not None and indent >= 4:
-                        if v.isdigit():
-                            current_map[k] = int(v)
-                        elif v.lower() == "true":
-                            current_map[k] = True
-                        elif v.lower() == "false":
-                            current_map[k] = False
-                        else:
-                            current_map[k] = v
+            elif current_model is not None and ":" in stripped:
+                k, v = stripped.split(":", 1)
+                k = k.strip()
+                v = v.strip().strip("'\"")
+                if k == "litellm_params":
+                    current_model["litellm_params"] = {}
+                    current_map = current_model["litellm_params"]
+                elif current_map is not None and indent >= 4:
+                    if v.isdigit():
+                        current_map[k] = int(v)
+                    elif v.lower() == "true":
+                        current_map[k] = True
+                    elif v.lower() == "false":
+                        current_map[k] = False
                     else:
-                        current_model[k] = v
+                        current_map[k] = v
+                else:
+                    current_model[k] = v
 
         # router_settings or general_settings
         elif current_section in ("router_settings", "general_settings"):
