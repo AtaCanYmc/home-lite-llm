@@ -49,11 +49,13 @@ jobs:
       - name: Validate Docker Compose Configuration
         run: docker compose config
 
-      - name: Validate Postman and Bruno Collections JSON
+      - name: Validate JSON Files
         run: |
           python3 -m json.tool collections/postman/LiteLLM_Gateway.postman_collection.json > /dev/null
           python3 -m json.tool collections/postman/LiteLLM_Local_Environment.postman_environment.json > /dev/null
           python3 -m json.tool collections/bruno/bruno.json > /dev/null
+          python3 -m json.tool release-please-config.json > /dev/null
+          python3 -m json.tool .release-please-manifest.json > /dev/null
 
       - name: Validate Internal Documentation Links
         run: |
