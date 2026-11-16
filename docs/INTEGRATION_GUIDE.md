@@ -1,77 +1,95 @@
-# 🌐 LiteLLM Proxy — Comprehensive Integration & Developer Experience (DX) Guide
+[← Back to Root Repository](../README.md)
 
-This guide provides step-by-step instructions, production-ready configuration templates, and copy-paste code snippets to integrate your local/server Docker-based **LiteLLM Gateway** (`home-lite-llm`) with all your IDEs (Cursor, Continue, Cline), Terminal/CLI tools (Aider, Claude CLI), Web UIs (Open WebUI, LibreChat), and software development stacks (Python, Node.js, cURL).
+# LiteLLM Proxy Integration and Developer Experience Guide
 
----
-
-## 📋 Table of Contents
-1. [Global Connection Parameters & Endpoints](#1-global-connection-parameters--endpoints)
-2. [IDE & AI Coding Assistants Integration](#2-ide--ai-coding-assistants-integration)
-   - [A. Cursor IDE](#a-cursor-ide)
-   - [B. Continue (VS Code & JetBrains)](#b-continue-vs-code--jetbrains)
-   - [C. Cline / Roo Code (Autonomous Coding Agent)](#c-cline--roo-code-vs-code-extension)
-3. [Terminal & CLI Tools Integration](#3-terminal--cli-tools-integration)
-   - [A. Aider (AI Pair Programming in Terminal)](#a-aider-integration)
-   - [B. Claude CLI & Official SDK Redirections](#b-claude-cli--official-sdk-redirections)
-   - [C. Shell Functions & Helpers (Zsh / Bash)](#c-shell-functions--helpers-zsh--bash)
-4. [Web UIs & Ecosystem Platforms](#4-web-uis--ecosystem-platforms)
-   - [A. Open WebUI Integration](#a-open-webui-integration)
-   - [B. LibreChat Integration](#b-librechat-integration)
-5. [Code Integration Examples (SDK & cURL)](#5-code-integration-examples-sdk--curl)
-   - [A. Python (OpenAI SDK — Standard & Streaming)](#a-python-integration)
-   - [B. Node.js / TypeScript (OpenAI SDK)](#b-nodejs--typescript-integration)
-   - [C. cURL (Terminal Verification)](#c-curl-terminal-verification)
+This guide provides technical specifications, configuration manifests, and code examples for integrating the local or server-hosted LiteLLM Proxy Gateway (`home-lite-llm`) across development environments, IDEs, terminal assistants, web interfaces, and custom software stacks.
 
 ---
 
-## 1. Global Connection Parameters & Endpoints
+## Table of Contents
 
-LiteLLM Proxy serves as a centralized gateway that normalizes requests across 15+ upstream providers into standard **OpenAI-compatible REST API** endpoints.
+- [Global Connection Parameters](#1-global-connection-parameters)
+- [Architecture and Request Flow](#2-architecture-and-request-flow)
+- [IDE and Coding Assistant Integration](#3-ide-and-coding-assistant-integration)
+  - [Cursor IDE](#a-cursor-ide)
+  - [Continue (VS Code and JetBrains)](#b-continue-vs-code-and-jetbrains)
+  - [Cline / Roo Code (VS Code Extension)](#c-cline--roo-code-vs-code-extension)
+- [Terminal and CLI Tooling Integration](#4-terminal-and-cli-tooling-integration)
+  - [Aider Pair Programming CLI](#a-aider-pair-programming-cli)
+  - [Environment Redirection for Official SDKs](#b-environment-redirection-for-official-sdks)
+  - [Terminal Shell Helper](#c-terminal-shell-helper)
+- [Web Interfaces and Orchestration Platforms](#5-web-interfaces-and-orchestration-platforms)
+  - [Open WebUI](#a-open-webui)
+  - [LibreChat](#b-librechat)
+- [SDK and cURL Execution Examples](#6-sdk-and-curl-execution-examples)
+  - [Python (OpenAI SDK)](#a-python-openai-sdk)
+  - [Node.js / TypeScript](#b-nodejs--typescript)
+  - [cURL Verification](#c-curl-verification)
 
-### 🔌 Connection Parameters
+---
+
+## 1. Global Connection Parameters
+
+LiteLLM Proxy normalizes multiple upstream AI provider interfaces into standard OpenAI-compatible REST API endpoints.
 
 | Parameter | Host Machine (Localhost) | Docker Container Network | Description |
 | :--- | :--- | :--- | :--- |
-| **OpenAI Base URL** | `http://localhost:4000/v1` | `http://litellm:4000/v1` | Primary endpoint for OpenAI SDKs & clients |
-| **Root Gateway URL** | `http://localhost:4000` | `http://litellm:4000` | Base URL for management and metrics |
-| **Authentication / API Key** | `MASTER_KEY` from `.env` *(or generated Virtual Key)* | `Bearer sk-...` | Passed via `Authorization: Bearer <KEY>` header |
-| **Admin Dashboard UI** | `http://localhost:4000/ui` | - | Central key, budget, and spend management UI |
-| **Readiness Healthcheck** | `http://localhost:4000/health/readiness` | `http://litellm:4000/health/readiness` | Probes proxy & database connectivity |
+| **OpenAI Base URL** | `http://localhost:4000/v1` | `http://litellm:4000/v1` | Target endpoint for OpenAI SDKs and third-party tools |
+| **Root Gateway URL** | `http://localhost:4000` | `http://litellm:4000` | Root path for metrics, UI, and diagnostics |
+| **Authentication Token** | `MASTER_KEY` or Virtual Key | `Bearer sk-...` | Passed via `Authorization: Bearer <KEY>` header |
+| **Admin Dashboard UI** | `http://localhost:4000/ui` | Not published | Web UI for key generation, spend tracking, and logs |
+| **Readiness Healthcheck** | `http://localhost:4000/health/readiness` | `http://litellm:4000/health/readiness` | Unauthenticated status probe for proxy and database |
 
-### 🤖 Supported Model Aliases (`model_name`)
-Use any of the following configured model aliases directly in your client applications:
-
-* **Frontier Cloud LLMs**: `gpt-4o`, `gpt-4o-mini`, `o3-mini`, `claude-3-5-sonnet`, `claude-3-5-haiku`, `gemini-2.0-flash`, `gemini-1.5-pro`, `deepseek-chat`, `deepseek-reasoner`, `grok-2`, `grok-2-vision`
-* **Ultra-Fast LPU Inference (Groq)**: `groq-llama-3.3-70b`, `groq-llama-3.1-8b`, `groq-deepseek-r1-70b`, `groq-gemma2-9b`
-* **Local / Offline Models**: `ollama-llama3.3`, `ollama-deepseek-r1`, `ollama-qwen2.5`, `lmstudio-local`, `vllm-llama3`
+### Supported Model Aliases
+Use any configured model alias in client requests:
+- **Commercial Cloud Models**: `gpt-4o`, `gpt-4o-mini`, `o3-mini`, `claude-3-5-sonnet`, `claude-3-5-haiku`, `gemini-2.0-flash`, `gemini-1.5-pro`, `deepseek-chat`, `deepseek-reasoner`, `grok-2`, `grok-2-vision`
+- **Ultra-Fast LPU Models (Groq)**: `groq-llama-3.3-70b`, `groq-llama-3.1-8b`, `groq-deepseek-r1-70b`, `groq-gemma2-9b`
+- **Local / Host Models**: `ollama-llama3.3`, `ollama-deepseek-r1`, `ollama-qwen2.5`, `lmstudio-local`, `vllm-llama3`
 
 ---
 
-## 2. IDE & AI Coding Assistants Integration
+## 2. Architecture and Request Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client / IDE / CLI
+    participant Proxy as LiteLLM Gateway (:4000)
+    participant DB as PostgreSQL (:5432)
+    participant Provider as Upstream Provider (Cloud / Local)
+
+    Client->>Proxy: POST /v1/chat/completions (Bearer Key, Model)
+    Proxy->>DB: Validate Key and Deduct Budget
+    DB-->>Proxy: Key Valid (Remaining: $9.50)
+    Proxy->>Provider: Forward Request to Selected Backend
+    Provider-->>Proxy: Response Stream or Token Payload
+    Proxy->>DB: Record Token Consumption and Spend
+    Proxy-->>Client: 200 OK (OpenAI-compatible JSON payload)
+```
+
+---
+
+## 3. IDE and Coding Assistant Integration
 
 ### A. Cursor IDE
 
-[Cursor](https://www.cursor.com/) allows overriding the default OpenAI endpoint to route all chat, code edits, and inline generation through your local proxy.
-
-1. Open **Cursor** and navigate to **Settings** (`Cmd + ,` on macOS or `Ctrl + ,` on Windows/Linux) -> **Cursor Settings** -> **Models**.
-2. Locate the **OpenAI API Key** section:
-   * **OpenAI API Key**: Enter your `MASTER_KEY` from `.env` (starts with `sk-...`).
-   * **Override OpenAI Base URL**: Enter `http://localhost:4000/v1` *(Ensure `/v1` is included at the end)*.
-3. Click **Add Model** to register your desired models:
-   * `gpt-4o`
-   * `claude-3-5-sonnet`
-   * `gemini-2.0-flash`
-   * `groq-llama-3.3-70b`
-   * `ollama-llama3.3`
-4. Toggle on the models and select your default model in Cursor AI Chat / Composer.
+1. Open Cursor and navigate to **Settings** -> **Cursor Settings** -> **Models**.
+2. Configure OpenAI API parameters:
+   - **OpenAI API Key**: Enter `MASTER_KEY` from `.env`.
+   - **Override OpenAI Base URL**: Enter `http://localhost:4000/v1`.
+3. Select **Add Model** to register active models:
+   - `gpt-4o`
+   - `claude-3-5-sonnet`
+   - `gemini-2.0-flash`
+   - `groq-llama-3.3-70b`
+   - `ollama-llama3.3`
+4. Enable the models in Cursor settings.
 
 ---
 
-### B. Continue (VS Code & JetBrains)
+### B. Continue (VS Code and JetBrains)
 
-[Continue.dev](https://continue.dev/) is an open-source AI code assistant supporting tab autocomplete, inline edits, and sidebar chat.
-
-Open your Continue configuration file located at `~/.continue/config.json` and paste the following configuration:
+Configure `~/.continue/config.json`:
 
 ```json
 {
@@ -91,14 +109,14 @@ Open your Continue configuration file located at `~/.continue/config.json` and p
       "apiKey": "sk-your-secure-and-long-master-key-here"
     },
     {
-      "title": "LiteLLM - Groq Llama 3.3 (Fast)",
+      "title": "LiteLLM - Groq Llama 3.3",
       "provider": "openai",
       "model": "groq-llama-3.3-70b",
       "apiBase": "http://localhost:4000/v1",
       "apiKey": "sk-your-secure-and-long-master-key-here"
     },
     {
-      "title": "LiteLLM - Ollama DeepSeek R1 (Local)",
+      "title": "LiteLLM - Ollama DeepSeek R1",
       "provider": "openai",
       "model": "ollama-deepseek-r1",
       "apiBase": "http://localhost:4000/v1",
@@ -125,41 +143,35 @@ Open your Continue configuration file located at `~/.continue/config.json` and p
 
 ### C. Cline / Roo Code (VS Code Extension)
 
-To configure the autonomous coding agent **Cline** (or **Roo Code**):
-
-1. Click the **Cline** icon in the VS Code sidebar and open ⚙️ **Settings**.
-2. **API Provider**: Select `OpenAI Compatible`.
-3. **Base URL**: `http://localhost:4000/v1`
-4. **API Key**: Enter your `MASTER_KEY` value from `.env`.
-5. **Model ID**: Enter `claude-3-5-sonnet`, `gpt-4o`, or `groq-llama-3.3-70b`.
-6. Click **Done** to save. Cline will now execute tasks through your LiteLLM gateway.
+1. Open the **Cline** panel in VS Code and click **Settings**.
+2. Set **API Provider** to `OpenAI Compatible`.
+3. Set **Base URL** to `http://localhost:4000/v1`.
+4. Enter `MASTER_KEY` in the **API Key** input.
+5. Set **Model ID** to `claude-3-5-sonnet` or `groq-llama-3.3-70b`.
+6. Save and initiate tasks.
 
 ---
 
-## 3. Terminal & CLI Tools Integration
+## 4. Terminal and CLI Tooling Integration
 
-### A. Aider Integration
+### A. Aider Pair Programming CLI
 
-[Aider](https://aider.chat/) is an AI pair-programming terminal tool that edits code across your local git repository.
-
-#### Option 1: Direct Command-Line Invocation
+#### Command-Line Invocation
 ```bash
 export OPENAI_API_BASE="http://localhost:4000/v1"
 export OPENAI_API_KEY="sk-your-secure-and-long-master-key-here"
 
-# Start Aider with Claude 3.5 Sonnet:
+# Start with Claude 3.5 Sonnet
 aider --model openai/claude-3-5-sonnet
 
-# Or start with ultra-fast Groq Llama 3.3:
+# Start with Groq Llama 3.3
 aider --model openai/groq-llama-3.3-70b
 
-# Or start with offline Ollama DeepSeek R1:
+# Start with local Ollama DeepSeek R1
 aider --model openai/ollama-deepseek-r1
 ```
 
-#### Option 2: Project `.aider.conf.yml` File
-Create an `.aider.conf.yml` file in your repository root:
-
+#### Persistent Configuration (`.aider.conf.yml`)
 ```yaml
 openai-api-base: http://localhost:4000/v1
 openai-api-key: sk-your-secure-and-long-master-key-here
@@ -171,57 +183,46 @@ stream: true
 
 ---
 
-### B. Claude CLI & Official SDK Redirections
+### B. Environment Redirection for Official SDKs
 
-To route CLI tools and third-party applications that rely on official SDK environment variables through LiteLLM:
+Redirect tools using standard OpenAI environment variables to LiteLLM:
 
 ```bash
-# OpenAI SDK & CLI tools
 export OPENAI_API_BASE="http://localhost:4000/v1"
 export OPENAI_BASE_URL="http://localhost:4000/v1"
 export OPENAI_API_KEY="sk-your-secure-and-long-master-key-here"
-
-# LiteLLM Proxy Target
 export LITELLM_BASE_URL="http://localhost:4000"
 ```
 
 ---
 
-### C. Shell Functions & Helpers (Zsh / Bash)
+### C. Terminal Shell Helper
 
-Add this lightweight prompt helper function to your `~/.zshrc` or `~/.bashrc`:
+Add this function to `~/.zshrc` or `~/.bashrc` for terminal LLM queries:
 
 ```bash
-# Instant Terminal AI Assistant
 ask-llm() {
-    local prompt="$*"
-    local master_key="${LITELLM_KEY:-sk-your-secure-and-long-master-key-here}"
-    local model="${LLM_MODEL:-gpt-4o-mini}"
+  local prompt="$*"
+  local master_key="${LITELLM_KEY:-sk-your-secure-and-long-master-key-here}"
+  local model="${LLM_MODEL:-gpt-4o-mini}"
 
-    curl -s http://localhost:4000/v1/chat/completions \
-      -H "Content-Type: application/json" \
-      -H "Authorization: Bearer $master_key" \
-      -d "{
-        \"model\": \"$model\",
-        \"messages\": [{\"role\": \"user\", \"content\": \"$prompt\"}]
-      }" | python3 -c "import sys, json; print(json.load(sys.stdin)['choices'][0]['message']['content'])"
+  curl -s http://localhost:4000/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $master_key" \
+    -d "{
+      \"model\": \"$model\",
+      \"messages\": [{\"role\": \"user\", \"content\": \"$prompt\"}]
+    }" | python3 -c "import sys, json; print(json.load(sys.stdin)['choices'][0]['message']['content'])"
 }
-
-# Example Usage:
-# ask-llm "How do I filter docker container logs by timestamp in zsh?"
 ```
 
 ---
 
-## 4. Web UIs & Ecosystem Platforms
+## 5. Web Interfaces and Orchestration Platforms
 
-### A. Open WebUI Integration
+### A. Open WebUI
 
-[Open WebUI](https://github.com/open-webui/open-webui) provides a ChatGPT-like web interface for your models.
-
-#### Method 1: Add to Docker Compose
-Add Open WebUI directly to your `docker-compose.yml` to run inside the same network:
-
+#### Docker Compose Integration
 ```yaml
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
@@ -238,19 +239,19 @@ Add Open WebUI directly to your `docker-compose.yml` to run inside the same netw
       - litellm
 ```
 
-#### Method 2: Connect from an Existing Open WebUI Instance
-1. Open WebUI (`http://localhost:3000`).
-2. Go to **Admin Panel** -> **Settings** -> **Connections**.
+#### External Connection Configuration
+1. Navigate to Open WebUI at `http://localhost:3000`.
+2. Open **Admin Panel** -> **Settings** -> **Connections**.
 3. Under **OpenAI API**:
-   * **URL**: `http://localhost:4000/v1` *(or `http://litellm:4000/v1` if containerized)*
-   * **Key**: Your `MASTER_KEY` from `.env`.
-4. Click **Save**. All models defined in `config.yaml` will automatically appear in your model picker.
+   - Set **URL** to `http://localhost:4000/v1`.
+   - Set **Key** to `MASTER_KEY`.
+4. Save settings. Models will appear in the model picker.
 
 ---
 
-### B. LibreChat Integration
+### B. LibreChat
 
-If using [LibreChat](https://www.librechat.ai/), add this custom endpoint entry to your `librechat.yaml`:
+Configure custom endpoints in `librechat.yaml`:
 
 ```yaml
 endpoints:
@@ -267,53 +268,49 @@ endpoints:
 
 ---
 
-## 5. Code Integration Examples (SDK & cURL)
+## 6. SDK and cURL Execution Examples
 
-### A. Python Integration
-
-Use the official `openai` Python SDK by pointing `base_url` to your LiteLLM instance:
+### A. Python (OpenAI SDK)
 
 ```python
 import os
 from openai import OpenAI
 
-# 1. Initialize LiteLLM Client
 client = OpenAI(
     base_url="http://localhost:4000/v1",
-    api_key="sk-your-secure-and-long-master-key-here"  # Or os.environ.get("MASTER_KEY")
+    api_key=os.environ.get("MASTER_KEY", "sk-your-secure-and-long-master-key-here")
 )
 
-# 2. Standard Chat Completion (GPT-4o)
+# Standard Completion
 response = client.chat.completions.create(
     model="gpt-4o",
     messages=[
-        {"role": "system", "content": "You are a senior software architect."},
-        {"role": "user", "content": "Explain the role of an API Gateway in microservices in 2 concise bullets."}
+        {"role": "system", "content": "You are a systems engineer."},
+        {"role": "user", "content": "Explain reverse proxy architecture in two sentences."}
     ],
     temperature=0.7
 )
-print("🔹 Model Output:\n", response.choices[0].message.content)
-print(f"💰 Token Usage: {response.usage.total_tokens}\n")
+print("Response:\n", response.choices[0].message.content)
+print("Tokens used:", response.usage.total_tokens)
 
-# 3. Streaming Chat Completion (Claude 3.5 Sonnet)
-print("🔹 Streaming Output (Claude 3.5 Sonnet): ", end="", flush=True)
+# Streaming Completion
 stream = client.chat.completions.create(
     model="claude-3-5-sonnet",
     messages=[
-        {"role": "user", "content": "Count from 1 to 5 slowly."}
+        {"role": "user", "content": "Count from 1 to 5."}
     ],
     stream=True
 )
 
 for chunk in stream:
-    content = chunk.choices[0].delta.content or ""
-    print(content, end="", flush=True)
-print("\n")
+    token = chunk.choices[0].delta.content or ""
+    print(token, end="", flush=True)
+print()
 ```
 
 ---
 
-### B. Node.js / TypeScript Integration
+### B. Node.js / TypeScript
 
 ```typescript
 import OpenAI from 'openai';
@@ -324,10 +321,11 @@ const client = new OpenAI({
 });
 
 async function main() {
-  // Ultra-fast Groq Llama 3.3 70B Call
   const completion = await client.chat.completions.create({
     model: 'groq-llama-3.3-70b',
-    messages: [{ role: 'user', content: 'State the difference between TypeScript and JavaScript in one sentence.' }],
+    messages: [
+      { role: 'user', content: 'Explain high-throughput LPU inference in one sentence.' }
+    ],
   });
 
   console.log('Response:', completion.choices[0].message.content);
@@ -338,15 +336,15 @@ main().catch(console.error);
 
 ---
 
-### C. cURL (Terminal Verification)
+### C. cURL Verification
 
-#### 1. Retrieve Active Models List
+#### List Models
 ```bash
 curl -s http://localhost:4000/v1/models \
   -H "Authorization: Bearer sk-your-secure-and-long-master-key-here" | python3 -m json.tool
 ```
 
-#### 2. Chat Completion with xAI Grok 2
+#### Chat Completion via xAI Grok 2
 ```bash
 curl -X POST http://localhost:4000/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -354,12 +352,12 @@ curl -X POST http://localhost:4000/v1/chat/completions \
   -d '{
     "model": "grok-2",
     "messages": [
-      {"role": "user", "content": "Provide a fascinating fact about astrophysics."}
+      {"role": "user", "content": "Provide a summary of orbital mechanics in two bullets."}
     ]
   }'
 ```
 
-#### 3. Local Offline Ollama Inference
+#### Local Offline Ollama Inference
 ```bash
 curl -X POST http://localhost:4000/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -367,7 +365,7 @@ curl -X POST http://localhost:4000/v1/chat/completions \
   -d '{
     "model": "ollama-llama3.3",
     "messages": [
-      {"role": "user", "content": "Hello! Are you running as a local model?"}
+      {"role": "user", "content": "Confirm local inference connectivity."}
     ]
   }'
 ```

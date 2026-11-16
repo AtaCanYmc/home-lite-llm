@@ -1,69 +1,70 @@
+[← Back to Remote Access Overview](../README.md) | [← Back to Root Repository](../../README.md)
+
 # Cloudflare Tunnel Integration
 
-Exposes the LiteLLM proxy to the internet **without a static IP or port forwarding**. Traffic flows through an encrypted tunnel over Cloudflare's global network.
-
-## Methods
-
-| Method | Domain | Persistence | Requirement |
-|:---|:---|:---|:---|
-| **TryCloudflare** (Temporary) | `*.trycloudflare.com` | Changes on every restart | No account needed |
-| **Named Tunnel** (Permanent) | Your own domain | Permanent | Cloudflare account + domain |
+Exposes the LiteLLM proxy to the internet without a static IP or inbound port forwarding rules. Traffic routes through an encrypted tunnel over Cloudflare's global edge network.
 
 ---
 
-## ⚡ Quick Start — Temporary Tunnel (No Account Needed)
+## Operating Modes
+
+| Mode | Domain Scope | Persistence | Prerequisites |
+| :--- | :--- | :--- | :--- |
+| **TryCloudflare** | `*.trycloudflare.com` | Ephemeral (resets on restart) | None |
+| **Named Tunnel** | Custom domain | Persistent | Cloudflare account and registered domain |
+
+---
+
+## Quick Start: Ephemeral Tunnel
+
+Start an ad-hoc tunnel without a Cloudflare account:
 
 ```bash
 chmod +x tunnels/cloudflare/start-cloudflare.sh
 ./tunnels/cloudflare/start-cloudflare.sh
 ```
 
-Within seconds you will see a URL in the terminal like:
+Inspect the output for the assigned edge hostname:
 
-```
-🌐 URL: https://abc-def-123.trycloudflare.com
+```text
+URL: https://abc-def-123.trycloudflare.com
 ```
 
-Use this URL to reach LiteLLM from outside your network:
+Verify service connectivity through the tunnel:
 
 ```bash
-curl https://abc-def-123.trycloudflare.com/health
+curl https://abc-def-123.trycloudflare.com/health/readiness
 ```
-
-> **Note:** The temporary URL changes on every restart. For a stable URL, set up a permanent named tunnel.
 
 ---
 
-## 🔒 Permanent Tunnel Setup (Your Own Domain)
+## Persistent Named Tunnel Setup
 
 ### 1. Prerequisites
-- A [Cloudflare account](https://dash.cloudflare.com/sign-up) (free)
-- A domain added to Cloudflare
+- A Cloudflare account with a registered domain.
+- Cloudflare nameservers delegated for the target domain.
 
-### 2. Create a Tunnel Token
+### 2. Provision Tunnel Token
+1. Open the [Cloudflare Zero Trust Dashboard](https://one.cloudflare.com).
+2. Navigate to **Networks** -> **Tunnels** -> **Create a tunnel**.
+3. Select **Cloudflared** as the connector type.
+4. Specify a tunnel identifier (e.g. `litellm-proxy`).
+5. Save the tunnel and copy the generated authentication token.
 
-1. Go to [Cloudflare Zero Trust Dashboard](https://one.cloudflare.com)
-2. Navigate to **Networks → Tunnels → Create a tunnel**
-3. Connector type: select **Cloudflared**
-4. Enter a tunnel name (e.g. `litellm-home`)
-5. Click **Save tunnel**
-6. Copy the displayed **Token**
-
-### 3. Add the Token to `.env`
+### 3. Configure Environment
+Set `TUNNEL_TOKEN` in `.env`:
 
 ```env
 TUNNEL_TOKEN=eyJhIjoiMT...long_token...
 ```
 
-### 4. Configure DNS
+### 4. Configure Public Hostname Routing
+In the Zero Trust tunnel configuration:
+- Set **Public Hostname** to your domain (e.g. `litellm.example.com`).
+- Set **Service Type** to `HTTP`.
+- Set **URL** to `http://litellm:4000`.
 
-After creating the tunnel in the dashboard:
-- **Public Hostname → Add a public hostname**
-- Domain: `litellm.yourdomain.com`
-- Service: `http://litellm:4000`
-
-### 5. Start the Permanent Tunnel
-
+### 5. Launch Named Tunnel
 ```bash
 TUNNEL_TOKEN=$(grep TUNNEL_TOKEN .env | cut -d= -f2) \
   ./tunnels/cloudflare/start-cloudflare.sh
@@ -71,45 +72,26 @@ TUNNEL_TOKEN=$(grep TUNNEL_TOKEN .env | cut -d= -f2) \
 
 ---
 
-## Manual Docker Compose Usage
+## Docker Compose Execution
+
+Manage the tunnel alongside base services using Compose override files:
 
 ```bash
-# Start (temporary tunnel)
+# Start LiteLLM with Cloudflare Tunnel overlay
 docker compose \
   -f docker-compose.yml \
   -f tunnels/cloudflare/docker-compose.cloudflare.yml \
   up -d
 
-# Follow logs to see the URL
+# Inspect connector logs
 docker compose \
   -f docker-compose.yml \
   -f tunnels/cloudflare/docker-compose.cloudflare.yml \
   logs -f cloudflared
 
-# Stop the tunnel (LiteLLM keeps running)
+# Stop the tunnel overlay while retaining base services
 docker compose \
   -f docker-compose.yml \
   -f tunnels/cloudflare/docker-compose.cloudflare.yml \
   stop cloudflared
-```
-
----
-
-## Security Notes
-
-- Cloudflare automatically encrypts all HTTPS traffic (TLS/SSL included at no extra cost).
-- LiteLLM requires a `MASTER_KEY`, so anyone who knows the URL still cannot make API calls without the key.
-- For permanent tunnels, you can add Cloudflare Zero Trust Access policies to restrict access by IP range or email.
-
-## Troubleshooting
-
-```bash
-# View container logs
-docker logs litellm-cloudflared
-
-# Check container status
-docker inspect litellm-cloudflared --format='{{.State.Status}}'
-
-# Manual tunnel info
-docker exec litellm-cloudflared cloudflared tunnel info
 ```

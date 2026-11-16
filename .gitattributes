@@ -1,0 +1,36 @@
+# Auto detect text files and perform LF normalization on checkout
+* text=auto eol=lf
+
+# Explicit shell script normalization (strictly LF across Windows, macOS, Linux)
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+
+# PowerShell scripts (support Windows execution while keeping normalized text)
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
+
+# Documentation and structured data
+*.md text diff=markdown
+*.json text
+*.yml text
+*.yaml text
+*.bru text
+
+# Binary assets (avoid corruption or line-ending conversions)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+*.pdf binary
+*.sql.gz binary
+
+# Release archive exclusions
+.github export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
+.editorconfig export-ignore
+.markdownlint.json export-ignore

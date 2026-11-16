@@ -28,7 +28,7 @@ Community leaders are responsible for clarifying and enforcing our standards of 
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project leaders responsible for enforcement. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to project maintainers at `contact@atacanyilmaz.com`. All complaints will be reviewed and investigated promptly and fairly.
 
 ## Attribution
 

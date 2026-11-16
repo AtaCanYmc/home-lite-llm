@@ -1,120 +1,54 @@
-# 🌐 Remote Access — Tunnel & VPN Integrations
+[← Back to Root Repository](../README.md)
 
-Four methods to expose your LiteLLM proxy outside your home network. Choose the one that best fits your use case.
+# Remote Access Integrations
 
----
-
-## 📊 Method Comparison
-
-| Feature | [Cloudflare Tunnel](cloudflare/) | [ngrok](ngrok/) | [Tailscale](tailscale/) | [Port Forwarding](port-forwarding/) |
-|:---|:---:|:---:|:---:|:---:|
-| **Setup Difficulty** | ⭐ Easy | ⭐ Easiest | ⭐⭐ Medium | ⭐⭐⭐ Hard |
-| **Stable URL** | ✅ (own domain) | ❌ (✅ on paid plan) | ✅ (Tailscale hostname) | ✅ (with DDNS) |
-| **Free Plan** | ✅ | ✅ (limited) | ✅ (up to 100 devices) | ✅ (DDNS is free) |
-| **Security** | 🟢 High | 🟡 Medium | 🟢 Highest | 🔴 Low |
-| **Server Exposed to Internet** | ❌ No | ❌ No | ❌ No | ✅ Yes |
-| **Port Forwarding Required** | ❌ No | ❌ No | ❌ No | ✅ Yes |
-| **Static IP Required** | ❌ No | ❌ No | ❌ No | ❌ No (with DDNS) |
-| **Publicly Accessible URL** | ✅ | ✅ | ❌ (network members only) | ✅ |
-| **Docker Compose Profile** | ✅ | ✅ | ✅ | ❌ |
+This guide details four methods to access your local LiteLLM proxy gateway outside your local network.
 
 ---
 
-## 🎯 Which Method Should I Choose?
+## Method Comparison Matrix
 
-```
-❓ Will you only access from your own devices (phone, laptop)?
-   → ✅ Tailscale — Most secure, no port forwarding needed
-
-❓ Do you want to share with friends or a team?
-   → ✅ Cloudflare Tunnel — Custom domain, free, secure
-
-❓ Do you need a quick test or development setup?
-   → ✅ ngrok — Fastest setup, single command
-
-❓ Do you have a static IP and want full control?
-   → ⚠️  Port Forwarding — But make sure to take security precautions
-```
+| Capability | Cloudflare Tunnel | ngrok | Tailscale | Port Forwarding |
+| :--- | :--- | :--- | :--- | :--- |
+| **Setup Complexity** | Low | Lowest | Medium | High |
+| **Stable URL** | Yes (Custom domain) | Paid plans only | Yes (Tailscale hostname) | Yes (Requires DDNS) |
+| **Free Tier** | Yes (Unlimited) | Yes (Rate-limited) | Yes (Up to 100 devices) | Yes (Self-managed) |
+| **Security Profile** | High | Medium | Highest (Zero-Trust Mesh) | Low (Direct IP exposure) |
+| **Public IP Required** | No | No | No | Yes |
+| **Port Forwarding Required** | No | No | No | Yes |
+| **Public Internet Ingress** | Yes | Yes | No (Authorized mesh only) | Yes |
+| **Docker Compose Profile** | Yes | Yes | Yes | No |
+| **Documentation Link** | [Cloudflare](cloudflare/README.md) | [ngrok](ngrok/README.md) | [Tailscale](tailscale/README.md) | [Port Forwarding](port-forwarding/README.md) |
 
 ---
 
-## ⚡ Quick Start
+## Selection Criteria
 
-### Cloudflare Tunnel (Temporary URL — No Account Needed)
+Select the method corresponding to your operational requirements:
+
+1. **Private Access for Personal Devices**: Choose **Tailscale**. Traffic remains encrypted within an authenticated mesh VPN without exposing HTTP ports to the open internet.
+2. **Team Access via Custom Domain**: Choose **Cloudflare Tunnel**. Exposes public HTTPS endpoints on your own domain with zero inbound router port configuration.
+3. **Temporary Testing or Webhooks**: Choose **ngrok**. Instantly generates an ephemeral public HTTPS URL through a single command.
+4. **Self-Hosted Static Ingress**: Choose **Port Forwarding**. Direct routing via router firewall rules. Requires strict reverse proxy TLS termination and upstream IP filtering.
+
+---
+
+## Quick Start
+
+### Cloudflare Tunnel (Ephemeral URL)
 ```bash
 chmod +x tunnels/cloudflare/start-cloudflare.sh
 ./tunnels/cloudflare/start-cloudflare.sh
 ```
 
-### ngrok
+### ngrok (Ephemeral URL)
 ```bash
 chmod +x tunnels/ngrok/start-ngrok.sh
 ./tunnels/ngrok/start-ngrok.sh
 ```
 
-### Tailscale
+### Tailscale (Private Mesh)
 ```bash
 chmod +x tunnels/tailscale/start-tailscale.sh
 ./tunnels/tailscale/start-tailscale.sh
 ```
-
-### Duck DNS + Port Forwarding
-```bash
-chmod +x tunnels/port-forwarding/setup-ddns.sh
-DUCKDNS_TOKEN=<token> DUCKDNS_DOMAIN=<subdomain> \
-  ./tunnels/port-forwarding/setup-ddns.sh
-```
-
----
-
-## 📁 Directory Structure
-
-```
-tunnels/
-├── README.md                        ← This file
-├── cloudflare/
-│   ├── README.md                    ← Cloudflare setup guide
-│   ├── docker-compose.cloudflare.yml
-│   └── start-cloudflare.sh
-├── ngrok/
-│   ├── README.md                    ← ngrok setup guide
-│   ├── docker-compose.ngrok.yml
-│   └── start-ngrok.sh
-├── tailscale/
-│   ├── README.md                    ← Tailscale setup guide
-│   ├── docker-compose.tailscale.yml
-│   └── start-tailscale.sh
-└── port-forwarding/
-    ├── README.md                    ← Port Forwarding guide
-    └── setup-ddns.sh
-```
-
----
-
-## 🔑 Environment Variables (`.env`)
-
-Add the relevant variable to your `.env` file for each method:
-
-```env
-# Cloudflare Tunnel (permanent tunnel only — not needed for temporary TryCloudflare)
-TUNNEL_TOKEN=eyJhIjoiMT...
-
-# ngrok (registered account features — not needed for anonymous use)
-NGROK_AUTHTOKEN=2abc123...
-
-# Tailscale (headless/automated join — not needed for interactive browser login)
-TS_AUTHKEY=tskey-auth-...
-
-# Duck DNS (DDNS for the Port Forwarding method)
-DUCKDNS_TOKEN=abc123...
-DUCKDNS_DOMAIN=my-litellm
-```
-
----
-
-## Detailed Guides
-
-- 📖 [Cloudflare Tunnel Guide](cloudflare/README.md)
-- 📖 [ngrok Guide](ngrok/README.md)
-- 📖 [Tailscale Guide](tailscale/README.md)
-- 📖 [Port Forwarding Guide](port-forwarding/README.md)

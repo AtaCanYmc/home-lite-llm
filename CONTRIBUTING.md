@@ -1,78 +1,91 @@
-# Contributing to LiteLLM Proxy Setup
+# Contributing Guidelines
 
-First off, thank you for considering contributing to this repository! Contributions make open-source projects a fantastic place to learn, inspire, and create.
+This document outlines the workflow, coding standards, and verification requirements for contributing to the LiteLLM Proxy setup repository.
 
 ---
 
 ## Table of Contents
+
 - [Code of Conduct](#code-of-conduct)
-- [How Can I Contribute?](#how-can-i-contribute)
-  - [Reporting Bugs](#reporting-bugs)
-  - [Suggesting Enhancements](#suggesting-enhancements)
-  - [Pull Requests](#pull-requests)
-- [Development Workflow](#development-workflow)
-- [Coding Standards & Style Guide](#coding-standards--style-guide)
+- [How to Contribute](#how-to-contribute)
+  - [Reporting Issues](#reporting-issues)
+  - [Proposing Features](#proposing-features)
+  - [Pull Request Workflow](#pull-request-workflow)
+- [Local Development and Verification](#local-development-and-verification)
+- [Standards and Conventions](#standards-and-conventions)
 
 ---
 
 ## Code of Conduct
 
-This project adheres to the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+All contributors and maintainers are expected to adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ---
 
-## How Can I Contribute?
+## How to Contribute
 
-### Reporting Bugs
+### Reporting Issues
 
-Before creating bug reports, please check existing issues. When creating a bug report, please include:
-- A clear and descriptive title.
-- Steps to reproduce the problem.
-- Expected behavior vs. actual behavior.
-- Relevant log output from `docker compose logs litellm`.
+Search existing GitHub Issues before creating a new report. When submitting an issue:
+- Use the structured [Bug Report Form](.github/ISSUE_TEMPLATE/bug_report.yml).
+- Include exact terminal commands and steps required to reproduce the behavior.
+- Attach sanitized container logs from `docker compose logs litellm`.
+- For security vulnerabilities, follow the reporting procedure in [SECURITY.md](SECURITY.md).
 
-### Suggesting Enhancements
+### Proposing Features
 
-Enhancement suggestions are tracked as GitHub Issues. Please include:
-- A clear, descriptive title.
-- A detailed explanation of the proposed feature.
-- Use cases or benefits to the project.
+Feature proposals must be submitted through the [Feature Request Form](.github/ISSUE_TEMPLATE/feature_request.yml).
+- State the technical friction or limitation being solved.
+- Detail the configuration schema additions or new provider targets.
+- Confirm backwards compatibility with existing `.env` templates and Docker Compose definitions.
 
-### Pull Requests
+### Pull Request Workflow
 
-1. Fork the repository.
-2. Create a new topic branch: `git checkout -b feature/amazing-feature`.
-3. Make your changes and verify that:
-   - `config.yaml` is valid YAML.
-   - `quickstart.sh` passes `bash -n quickstart.sh`.
-   - `docker compose config` exits with code 0.
-4. Commit your changes with a clear commit message: `git commit -m 'feat: add support for new provider'`.
-5. Push to your branch: `git push origin feature/amazing-feature`.
-6. Open a Pull Request against `main`.
+1. Fork the repository and create a feature branch from `main`:
+   ```bash
+   git checkout -b feat/add-groq-provider
+   ```
+2. Implement your changes. Keep commits scoped and atomic.
+3. Verify local configurations against the test suite:
+   ```bash
+   make validate
+   make lint
+   ```
+4. Format commit messages following [Conventional Commits](https://www.conventionalcommits.org/):
+   ```text
+   feat: add support for groq mixtral models in config.yaml
+   fix: correct database readiness health check probe
+   docs: update integration guide with continue config
+   ```
+5. Push your branch and open a Pull Request against `main`. Ensure all CI checks pass.
 
 ---
 
-## Development Workflow
+## Local Development and Verification
 
-1. Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-2. Test local changes with Docker Compose:
-   ```bash
-   docker compose up -d
-   ```
-3. Run syntax checks locally:
-   ```bash
-   python3 -c "import yaml; yaml.safe_load(open('config.yaml'))"
-   bash -n quickstart.sh
-   docker compose config
-   ```
+### 1. Environment Setup
+```bash
+cp .env.example .env
+```
+
+### 2. Service Verification
+Start the container stack in detached mode:
+```bash
+docker compose up -d
+```
+
+### 3. Automated Validation Suite
+Execute the pre-flight validation suite before opening a pull request:
+```bash
+make validate
+make test-models
+```
 
 ---
 
-## Coding Standards & Style Guide
+## Standards and Conventions
 
-- **YAML Formatting**: Use 2 spaces for indentation. Include descriptive comments for new models or configuration directives.
-- **Bash Scripts**: Follow Google Shell Style Guide. Use `set -e` at the top of executable scripts.
-- **Documentation**: Keep documentation in clean, GitHub-flavored Markdown. Ensure all file paths and symbols are accurately linked.
+- **YAML Configuration**: 2-space indentation. All new model definitions in `config.yaml` must define `model_name`, `litellm_params.model`, and reference `api_key` using `os.environ/KEY_NAME`.
+- **Shell Scripts**: Follow the Google Shell Style Guide. Enforce strict exit flags (`set -euo pipefail`) in all executable scripts. Verify syntax with `bash -n <script>`.
+- **Python Utilities**: Follow PEP 8 formatting. Lint all scripts with Ruff (`ruff check <file>`).
+- **Documentation**: Write in GitHub-flavored Markdown. Strip all inline emojis, buzzwords, and fragmented em-dashes.

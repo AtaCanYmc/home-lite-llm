@@ -26,19 +26,13 @@ jobs:
           pip install pyyaml yamllint ruff
 
       - name: Lint YAML Files
-        run: |
-          yamllint -c .yamllint.yml .
-          echo "✅ YAML linting passed"
+        run: yamllint -c .yamllint.yml .
 
       - name: Lint Python Scripts with Ruff
-        run: |
-          ruff check scripts/validate_config.py
-          echo "✅ Ruff Python linting passed"
+        run: ruff check scripts/validate_config.py
 
       - name: Validate config.yaml and Environment
-        run: |
-          python3 scripts/validate_config.py --env .env.example
-          echo "✅ config.yaml configuration valid"
+        run: python3 scripts/validate_config.py --env .env.example
 
       - name: Validate Bash Scripts Syntax
         run: |
@@ -48,19 +42,47 @@ jobs:
           bash -n tunnels/cloudflare/start-cloudflare.sh
           bash -n tunnels/ngrok/start-ngrok.sh
           bash -n tunnels/tailscale/start-tailscale.sh
-          echo "✅ Shell scripts syntax valid"
 
       - name: Create Environment File for CI
         run: cp .env.example .env
 
       - name: Validate Docker Compose Configuration
-        run: |
-          docker compose config
-          echo "✅ docker-compose.yml configuration valid"
+        run: docker compose config
 
       - name: Validate Postman and Bruno Collections JSON
         run: |
           python3 -m json.tool collections/postman/LiteLLM_Gateway.postman_collection.json > /dev/null
           python3 -m json.tool collections/postman/LiteLLM_Local_Environment.postman_environment.json > /dev/null
           python3 -m json.tool collections/bruno/bruno.json > /dev/null
-          echo "✅ API Collections JSON valid"
+
+      - name: Validate Internal Documentation Links
+        run: |
+          python3 -c '
+          import re, glob, os
+
+          def check_file(f):
+              content = open(f, encoding="utf-8").read()
+              content = re.sub(r"```[\s\S]*?```", "", content)
+              content = re.sub(r"`[^`]*`", "", content)
+              links = re.findall(r"\[.*?\]\((?!https?://|mailto:)(.*?)(?:#.*)?\)", content)
+              broken = []
+              for link in links:
+                  link = link.strip()
+                  if not link or link.startswith("#"): continue
+                  target = os.path.normpath(os.path.join(os.path.dirname(f), link))
+                  if not os.path.exists(target):
+                      broken.append(f"{f} -> {link} (resolved: {target})")
+              return broken
+
+          all_broken = []
+          for md in glob.glob("**/*.md", recursive=True):
+              if ".venv" in md or "node_modules" in md: continue
+              all_broken.extend(check_file(md))
+
+          if all_broken:
+              print("Broken relative links detected:")
+              for b in all_broken:
+                  print(" - " + b)
+              exit(1)
+          print("All internal markdown links verified.")
+          '

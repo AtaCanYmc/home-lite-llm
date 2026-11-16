@@ -1,150 +1,95 @@
-# Tailscale Integration
+[← Back to Remote Access Overview](../README.md) | [← Back to Root Repository](../../README.md)
 
-Joins the LiteLLM proxy into a secure mesh VPN so that only **trusted devices** can access it. The server is never exposed to the public internet — no external access is possible without being on the Tailscale network.
+# Tailscale Mesh VPN Integration
 
-## When to Use Tailscale
-
-- You want to access LiteLLM from your own devices (home, office, mobile)
-- You want to share access with trusted people
-- You do not want to expose LiteLLM to the internet at all (most secure option)
+Connects the LiteLLM proxy container to a private WireGuard-based Tailscale mesh network. Only authenticated devices within your Tailscale tailnet can communicate with the gateway. The server remains unexposed to public search crawlers and scans.
 
 ---
 
-## ⚡ Quick Start
+## Use Cases
 
-### 1. Create a Tailscale Account
-[tailscale.com](https://tailscale.com) → **Get started** (free for personal use, up to 100 devices)
+- Accessing LiteLLM securely from mobile devices, laptops, or secondary workstations.
+- Sharing private API access with trusted team members.
+- Enforcing Zero-Trust access without opening firewall ports.
 
-### 2. Start with the Script
+---
+
+## Quick Start
+
+### 1. Account Setup
+Register a free account at [tailscale.com](https://tailscale.com) (free for personal use up to 100 devices).
+
+### 2. Interactive Startup
+Execute the startup script:
 
 ```bash
 chmod +x tunnels/tailscale/start-tailscale.sh
 ./tunnels/tailscale/start-tailscale.sh
 ```
 
-The script displays a **login URL**. Open it in your browser and sign in with your Tailscale account.
+Follow the printed authentication URL to authorize the container node in your browser.
 
-### 3. Install Tailscale on Your Other Devices
-
-- **iPhone/Android**: Search "Tailscale" in the App Store / Google Play
-- **Mac/Windows/Linux**: [tailscale.com/download](https://tailscale.com/download)
-
-After signing in with the same account on all devices, you can reach LiteLLM via its Tailscale IP.
+### 3. Connect Client Devices
+Install Tailscale on client devices from [tailscale.com/download](https://tailscale.com/download). Once connected to the same tailnet, reach LiteLLM directly via its Tailscale IP address or MagicDNS hostname (e.g. `http://litellm-proxy:4000/health/readiness`).
 
 ---
 
-## 🔑 Headless Setup with Auth Key (Automated)
+## Headless Setup with Pre-Authentication Key
 
-Instead of interactive browser login, you can use an **Auth Key** to automatically join the network.
+Automate node registration without interactive browser prompts:
 
-### 1. Create an Auth Key
+### 1. Generate Auth Key
+1. Open the [Tailscale Keys Console](https://login.tailscale.com/admin/settings/keys).
+2. Select **Generate auth key**.
+3. Enable **Reusable** or ephemeral properties as required.
 
-1. Go to [Tailscale Admin → Settings → Keys](https://login.tailscale.com/admin/settings/keys)
-2. Click **Generate auth key**
-3. Enable **Reusable** if you want to reuse the same key
-4. Click **Generate key** and copy it
-
-### 2. Add to `.env`
+### 2. Configure Environment
+Set `TS_AUTHKEY` in `.env`:
 
 ```env
 TS_AUTHKEY=tskey-auth-kXXXXXXXXXX-XXXXXXXXXXXXXXXXXX
 ```
 
-### 3. Start with Auth Key
-
+### 3. Start Tailscale Node
 ```bash
 ./tunnels/tailscale/start-tailscale.sh
-# TS_AUTHKEY is read from .env automatically — no browser login required
 ```
 
 ---
 
-## 📡 Tailscale Funnel (Public HTTPS Endpoint — Optional)
+## Tailscale Funnel (Public HTTPS Ingress)
 
-Tailscale's **Funnel** feature allows people who are not on your Tailscale network to access LiteLLM via a URL like `https://litellm-proxy.tail12345.ts.net`.
-
-> ⚠️ **Warning:** Enabling Funnel exposes the server to the internet. Use this feature with care.
+To expose the proxy publicly via Tailscale Funnel:
 
 ```bash
 TS_FUNNEL=1 ./tunnels/tailscale/start-tailscale.sh
 ```
 
-Funnel must be enabled in your Tailscale account settings before using this flag.
+*Note: Funnel requires enabling HTTPS certificates and Funnel feature flags in your Tailscale access control policy.*
 
 ---
 
-## Manual Docker Compose Usage
+## Docker Compose Execution
 
 ```bash
-# Start
+# Start base services with Tailscale network overlay
 docker compose \
   -f docker-compose.yml \
   -f tunnels/tailscale/docker-compose.tailscale.yml \
   up -d
 
-# Get Tailscale IP
+# Inspect Tailscale IPv4 address
 docker exec litellm-tailscale tailscale ip -4
 
-# Check Tailscale status
+# Check node connection status
 docker exec litellm-tailscale tailscale status
 
-# Interactive login (if TS_AUTHKEY is not set)
+# Trigger interactive login if key is unset
 docker exec -it litellm-tailscale tailscale login
 
-# Stop Tailscale
+# Stop Tailscale container
 docker compose \
   -f docker-compose.yml \
   -f tunnels/tailscale/docker-compose.tailscale.yml \
   stop tailscale
-```
-
----
-
-## Access Example
-
-From any device on your Tailscale network (example IP):
-
-```bash
-# Health check
-curl http://100.64.1.5:4000/health
-
-# API request
-curl http://100.64.1.5:4000/v1/chat/completions \
-  -H "Authorization: Bearer $MASTER_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"model": "gemini-2.0-flash", "messages": [{"role": "user", "content": "Hello!"}]}'
-
-# Base URL for mobile apps
-# http://100.64.1.5:4000  (or http://litellm-proxy:4000 if MagicDNS is enabled)
-```
-
----
-
-## MagicDNS (Hostname Resolution)
-
-If **MagicDNS** is enabled in your Tailscale Admin panel, you can use the machine name instead of the IP:
-
-```
-http://litellm-proxy:4000/health
-```
-
----
-
-## Security
-
-- **Most secure option:** The server is never exposed to the internet — only visible within the Tailscale network
-- Tailscale uses end-to-end WireGuard encryption
-- Devices can be removed from the Tailscale Admin panel at any time
-
-## Troubleshooting
-
-```bash
-# View container logs
-docker logs litellm-tailscale
-
-# Detailed Tailscale status
-docker exec litellm-tailscale tailscale status --json
-
-# Connectivity test (via Tailscale IP)
-docker exec litellm-tailscale tailscale ping <other-device-ts-ip>
 ```
