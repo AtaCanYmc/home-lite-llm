@@ -325,6 +325,28 @@ def validate_configuration(config_path: Path, env_path: Path, strict: bool = Fal
             "masked_value": (val[:4] + "..." + val[-4:]) if val and len(val) > 10 else ("***" if val else ""),
         }
 
+    # 4. Security Credentials Audit
+    master_key = env_vars_file.get("MASTER_KEY") or os.environ.get("MASTER_KEY")
+    if master_key:
+        if is_placeholder_value(master_key):
+            results["warnings"].append("Security: MASTER_KEY is set to an insecure default placeholder value.")
+            if strict:
+                results["valid"] = False
+        elif len(master_key) < 16:
+            results["warnings"].append("Security: MASTER_KEY is shorter than 16 characters (recommended: 32+ bytes).")
+
+    pg_pass = env_vars_file.get("POSTGRES_PASSWORD") or os.environ.get("POSTGRES_PASSWORD")
+    if pg_pass and is_placeholder_value(pg_pass):
+        results["warnings"].append("Security: POSTGRES_PASSWORD is using an insecure default placeholder.")
+        if strict:
+            results["valid"] = False
+
+    grafana_pass = env_vars_file.get("GRAFANA_ADMIN_PASSWORD") or os.environ.get("GRAFANA_ADMIN_PASSWORD")
+    if grafana_pass and is_placeholder_value(grafana_pass):
+        results["warnings"].append("Security: GRAFANA_ADMIN_PASSWORD is set to default placeholder.")
+        if strict:
+            results["valid"] = False
+
     return results
 
 

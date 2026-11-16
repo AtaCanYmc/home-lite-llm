@@ -99,6 +99,7 @@ with open(path, 'w', encoding='utf-8') as f:
         else
             echo "${key}=${val}" >> "$file"
         fi
+        chmod 600 "$file" 2>/dev/null || true
     fi
 }
 
@@ -122,19 +123,21 @@ echo -e "${BOLD}2. Setting Up Environment Configuration (.env)...${RESET}"
 if [ ! -f .env ]; then
     if [ -f .env.example ]; then
         cp .env.example .env
-        echo -e "  ${GREEN}✔${RESET} Created .env from .env.example template"
+        chmod 600 .env
+        echo -e "  ${GREEN}✔${RESET} Created .env from .env.example template (permissions: 0600)"
     else
         echo -e "${RED}❌ Error: .env.example not found!${RESET}"
         exit 1
     fi
 else
-    echo -e "  ${GREEN}✔${RESET} Existing .env file found"
+    chmod 600 .env 2>/dev/null || true
+    echo -e "  ${GREEN}✔${RESET} Existing .env file found (permissions: 0600)"
 fi
 
 # 3. Generate secure Master Key if default or empty
 if grep -q "sk-your-secure-and-long-master-key-here" .env 2>/dev/null || ! grep -q "^MASTER_KEY=" .env 2>/dev/null; then
-    echo -e "  ${YELLOW}🔑 Generating cryptographically secure MASTER_KEY...${RESET}"
-    NEW_MASTER_KEY="sk-$(openssl rand -hex 24 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(24))')"
+    echo -e "  ${YELLOW}🔑 Generating cryptographically secure MASTER_KEY (256-bit)...${RESET}"
+    NEW_MASTER_KEY="sk-$(openssl rand -hex 32 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(32))')"
     set_env_var "MASTER_KEY" "$NEW_MASTER_KEY"
     set_env_var "UI_PASSWORD" "$NEW_MASTER_KEY"
     echo -e "  ${GREEN}✔${RESET} MASTER_KEY generated and saved to .env"
@@ -142,16 +145,16 @@ fi
 
 # 4. Generate Postgres password if default
 if grep -q "your_postgres_password_here" .env 2>/dev/null; then
-    echo -e "  ${YELLOW}🔐 Generating secure POSTGRES_PASSWORD...${RESET}"
-    NEW_PG_PASS="$(openssl rand -hex 16 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(16))')"
+    echo -e "  ${YELLOW}🔐 Generating secure POSTGRES_PASSWORD (192-bit)...${RESET}"
+    NEW_PG_PASS="$(openssl rand -hex 24 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(24))')"
     set_env_var "POSTGRES_PASSWORD" "$NEW_PG_PASS"
     echo -e "  ${GREEN}✔${RESET} PostgreSQL password configured"
 fi
 
 # 5. Generate Grafana admin password if default
 if grep -q "your_grafana_password_here" .env 2>/dev/null || grep -q "GRAFANA_ADMIN_PASSWORD=admin" .env 2>/dev/null; then
-    echo -e "  ${YELLOW}🔐 Generating secure GRAFANA_ADMIN_PASSWORD...${RESET}"
-    NEW_GRAFANA_PASS="$(openssl rand -hex 12 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(12))')"
+    echo -e "  ${YELLOW}🔐 Generating secure GRAFANA_ADMIN_PASSWORD (128-bit)...${RESET}"
+    NEW_GRAFANA_PASS="$(openssl rand -hex 16 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(16))')"
     set_env_var "GRAFANA_ADMIN_PASSWORD" "$NEW_GRAFANA_PASS"
     echo -e "  ${GREEN}✔${RESET} Grafana admin password configured"
 fi

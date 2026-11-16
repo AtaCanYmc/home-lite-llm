@@ -78,9 +78,11 @@ else
   exit 1
 fi
 
-# --- Create auto-update script ---
+# --- Create auto-update script with owner-only permissions ---
 echo ""
 echo "📝 Creating auto-update script: $UPDATE_SCRIPT"
+
+touch "$LOG_FILE" && chmod 600 "$LOG_FILE"
 
 cat > "$UPDATE_SCRIPT" << SCRIPT_EOF
 #!/usr/bin/env bash
@@ -90,8 +92,8 @@ RESULT=\$(curl -sf "https://www.duckdns.org/update?domains=${DUCKDNS_DOMAIN}&tok
 echo "\$(date '+%Y-%m-%d %H:%M:%S') | IP: \$(curl -sf https://api.ipify.org 2>/dev/null || echo 'unknown') | \$RESULT" >> "$LOG_FILE"
 SCRIPT_EOF
 
-chmod +x "$UPDATE_SCRIPT"
-echo "✅ Script created."
+chmod 700 "$UPDATE_SCRIPT"
+echo "✅ Script created with owner-only permissions."
 
 # --- Add cron job ---
 echo ""

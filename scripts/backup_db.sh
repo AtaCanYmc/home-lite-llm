@@ -5,6 +5,9 @@
 # ==============================================================================
 set -euo pipefail
 
+# Enforce strict umask so all backup files and directories are owner-only
+umask 077
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
@@ -99,8 +102,8 @@ if ! docker ps --format '{{.Names}}' | grep -Eq "^${DB_CONTAINER}$"; then
     exit 1
 fi
 
-# 2. Prepare Backup Directory
-mkdir -p "${BACKUP_DIR}"
+# 2. Prepare Backup Directory with restrictive permissions
+mkdir -p -m 700 "${BACKUP_DIR}"
 
 # 3. Perform Database Dump
 log "📦 Creating PostgreSQL backup from container '${DB_CONTAINER}'..."
@@ -109,6 +112,7 @@ log "   Database: ${POSTGRES_DB} | User: ${POSTGRES_USER}"
 if [ "$COMPRESS" = true ]; then
     BACKUP_FILE="${BACKUP_DIR}/litellm_backup_${TIMESTAMP}.sql.gz"
     if docker exec "${DB_CONTAINER}" pg_dump -U "${POSTGRES_USER}" "${POSTGRES_DB}" | gzip > "${BACKUP_FILE}"; then
+        chmod 600 "${BACKUP_FILE}"
         FILE_SIZE=$(du -h "${BACKUP_FILE}" | cut -f1)
         log "✅ Database backup created: ${BACKUP_FILE} (${FILE_SIZE})"
     else
@@ -119,6 +123,7 @@ if [ "$COMPRESS" = true ]; then
 else
     BACKUP_FILE="${BACKUP_DIR}/litellm_backup_${TIMESTAMP}.sql"
     if docker exec "${DB_CONTAINER}" pg_dump -U "${POSTGRES_USER}" "${POSTGRES_DB}" > "${BACKUP_FILE}"; then
+        chmod 600 "${BACKUP_FILE}"
         FILE_SIZE=$(du -h "${BACKUP_FILE}" | cut -f1)
         log "✅ Database backup created: ${BACKUP_FILE} (${FILE_SIZE})"
     else

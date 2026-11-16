@@ -97,9 +97,12 @@ flowchart TD
 ```
 
 ### Key Architectural Constraints
+- **Localhost-by-Default Ingress**: Service ports bind to `127.0.0.1` by default (`${LITELLM_HOST:-127.0.0.1}`, `${PROMETHEUS_HOST:-127.0.0.1}`, `${GRAFANA_HOST:-127.0.0.1}`) to prevent unintentional exposure to local networks or public interfaces on VPS deployments. Set `LITELLM_HOST=0.0.0.0` in `.env` only if external LAN access is explicitly needed.
 - **Database Isolation**: PostgreSQL port `5432` binds strictly to the internal Docker network `litellm-network`. It is never published to host network interfaces.
+- **Prompt and Key Privacy**: The proxy runs with production logging (`--detailed_debug` is removed) so user conversation messages, completions, and authorization headers are never dumped to disk.
 - **Failover Chains**: If a primary upstream provider fails or returns HTTP 429, the router immediately redirects the request to configured fallback models (e.g. `gpt-4o` -> `gemini-2.0-flash` -> `claude-3-5-sonnet`).
 - **Disk Protection**: Docker logging uses the `json-file` driver with strict rotation policies (`max-size: 10m`, `max-file: 3`) to prevent host storage exhaustion.
+- **File System Permissions**: Credential files (`.env`) and database dumps (`.sql.gz`) enforce owner-only `0600` permissions.
 
 ---
 

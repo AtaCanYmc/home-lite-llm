@@ -29,8 +29,8 @@ services:
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
     ports:
-      # ngrok web UI — inspect tunnel URL and live traffic
-      - "4040:4040"
+      # ngrok web UI inspector bound strictly to localhost for security
+      - "127.0.0.1:4040:4040"
     networks:
       - litellm-network
     depends_on:
