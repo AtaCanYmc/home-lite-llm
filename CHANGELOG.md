@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1](https://github.com/AtaCanYmc/home-lite-llm/compare/v1.1.0...v1.1.1) (2026-11-16)
+
+
+### Bug Fixes
+
+* **security:** harden network bindings, disable debug logging, and enforce strict file permissions ([15f1955](https://github.com/AtaCanYmc/home-lite-llm/commit/15f1955531314ed113918c9af5e04ffb3eff3442))
+
+
+### Documentation
+
+* align repository documentation and governance with well-document standards ([f083c33](https://github.com/AtaCanYmc/home-lite-llm/commit/f083c33d55a9959752aa2bbdaaa4fe9973601e03))
+
 ## [1.1.0] - 2026-09-01
 
 ### Added
