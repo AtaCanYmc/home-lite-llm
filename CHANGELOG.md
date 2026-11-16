@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/AtaCanYmc/home-lite-llm/compare/v1.1.1...v1.2.0) (2026-11-16)
+
+
+### Features
+
+* **docs:** add zero-dependency showcase and documentation site for github pages ([e5d5dab](https://github.com/AtaCanYmc/home-lite-llm/commit/e5d5dab7b7b7327d76a0a066fe1c834adfd0634e))
+
 ## [1.1.1](https://github.com/AtaCanYmc/home-lite-llm/compare/v1.1.0...v1.1.1) (2026-11-16)
 
 
