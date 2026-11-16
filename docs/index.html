@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Unified local AI gateway routing requests across 37 commercial and local models with automated failover, spend tracking, and Postgres-backed virtual keys.">
+  <title>Home LiteLLM: Unified AI Gateway and Developer Hub</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#overview" class="brand-link" aria-label="Home LiteLLM Homepage">
+        <span>Home LiteLLM</span>
+        <span class="brand-badge">v1.1.1</span>
+      </a>
+
+      <nav class="nav-desktop" aria-label="Main Navigation">
+        <a href="#overview" class="nav-link">Overview</a>
+        <a href="#architecture" class="nav-link">Architecture</a>
+        <a href="#models" class="nav-link">Model Catalog</a>
+        <a href="#integrations" class="nav-link">Integrations</a>
+        <a href="#operations" class="nav-link">Operations</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle visual theme" type="button"></button>
+        <a href="https://github.com/AtaCanYmc/home-lite-llm" class="github-btn" target="_blank" rel="noopener noreferrer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+          </svg>
+          <span>GitHub</span>
+        </a>
+        <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Open mobile navigation menu" aria-expanded="false" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer -->
+  <div id="mobile-nav-drawer" class="mobile-nav-drawer" aria-label="Mobile Navigation">
+    <a href="#overview" class="mobile-nav-link">Overview</a>
+    <a href="#architecture" class="mobile-nav-link">Architecture</a>
+    <a href="#models" class="mobile-nav-link">Model Catalog</a>
+    <a href="#integrations" class="mobile-nav-link">Integrations</a>
+    <a href="#operations" class="mobile-nav-link">Operations</a>
+    <a href="#faq" class="mobile-nav-link">FAQ</a>
+  </div>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section" id="overview">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="hero-eyebrow">Production-Hardened Local AI Gateway</div>
+          <h1 class="hero-title">Unified Local AI Gateway for Every IDE, CLI, and Model</h1>
+          <p class="hero-subtitle">
+            A single OpenAI-compatible REST endpoint on localhost:4000 routing across 37 commercial and local models. Features automated failovers, PostgreSQL virtual key storage, and Prometheus observability.
+          </p>
+
+          <div class="hero-badges-row">
+            <div class="hero-badge-item">37 Models Configured</div>
+            <div class="hero-badge-item">PostgreSQL 16.8 Storage</div>
+            <div class="hero-badge-item">OpenAI REST Standard</div>
+            <div class="hero-badge-item">Automated Provider Fallbacks</div>
+          </div>
+
+          <div class="hero-actions">
+            <a href="#quickstart" class="btn-primary">Get Started in 60s</a>
+            <a href="#models" class="btn-secondary">Explore 37 Models</a>
+          </div>
+        </div>
+
+        <div class="hero-preview" id="quickstart">
+          <div class="snippet-card">
+            <div class="snippet-card-header">
+              <span class="snippet-card-title">Quickstart Setup</span>
+              <button class="copy-btn" data-target="#quickstart-code" type="button">Copy</button>
+            </div>
+            <div class="snippet-card-body">
+              <pre id="quickstart-code"><code># 1. Clone repository
+git clone https://github.com/AtaCanYmc/home-lite-llm.git
+cd home-lite-llm
+
+# 2. Run interactive setup wizard
+./quickstart.sh
+
+# 3. Start gateway and postgres stack
+docker compose up -d</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section class="section" id="architecture">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-eyebrow">Engineering Architecture</div>
+          <h2 class="section-title">Reliable, Local-First AI Routing Pipeline</h2>
+          <p class="section-desc">
+            LiteLLM Proxy decouples development tools from individual API providers. All interactions standardize through a local reverse proxy with database-backed virtual keys and rate limit resilience.
+          </p>
+        </div>
+
+        <div class="arch-grid">
+          <div class="arch-card">
+            <div class="arch-card-icon">01</div>
+            <h3 class="arch-card-title">Localhost-by-Default Ingress</h3>
+            <p class="arch-card-text">
+              Network port publications bind strictly to 127.0.0.1 by default. The PostgreSQL database operates exclusively on the internal bridge network, completely shielded from external interfaces.
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-card-icon">02</div>
+            <h3 class="arch-card-title">Automated Fallback Routing</h3>
+            <p class="arch-card-text">
+              If an upstream provider encounters an outage or returns HTTP 429 rate limit errors, requests immediately failover to secondary targets (e.g. gpt-4o fails over to gemini-2.0-flash, then claude-3-5-sonnet).
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-card-icon">03</div>
+            <h3 class="arch-card-title">Prompt and Key Privacy</h3>
+            <p class="arch-card-text">
+              Verbose prompt debugging is disabled. User messages, system instructions, and completion tokens are never dumped into host disk logs. Virtual keys are hashed before database persistence.
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-card-icon">04</div>
+            <h3 class="arch-card-title">Host Storage Protection</h3>
+            <p class="arch-card-text">
+              Docker container logging enforces strict json-file rotation policies with 10 megabyte limits and 3 file backups, preventing disk exhaustion on high-throughput deployments.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Model Catalog Section -->
+    <section class="section" id="models">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-eyebrow">Configured Upstream Targets</div>
+          <h2 class="section-title">Supported Model Catalog</h2>
+          <p class="section-desc">
+            All 37 configured models defined in config.yaml. Filter by category or search by model name, provider, or environment variable.
+          </p>
+        </div>
+
+        <div class="catalog-controls">
+          <div class="search-input-wrapper">
+            <input type="search" id="catalog-search" class="catalog-search-input" placeholder="Search models by name, provider, or key (e.g. gpt-4o, groq, ollama)..." aria-label="Search models">
+          </div>
+
+          <div class="category-pills" role="toolbar" aria-label="Filter models by provider category">
+            <button class="filter-pill active" data-category="all" type="button">All Models</button>
+            <button class="filter-pill" data-category="cloud" type="button">Commercial Cloud</button>
+            <button class="filter-pill" data-category="groq" type="button">Ultra-Fast LPU (Groq)</button>
+            <button class="filter-pill" data-category="local" type="button">Local Runtimes (Ollama/vLLM)</button>
+          </div>
+
+          <div id="catalog-count" class="section-eyebrow" style="margin-top: 8px;">37 of 37 models</div>
+        </div>
+
+        <div class="models-table-container">
+          <table class="models-table">
+            <thead>
+              <tr>
+                <th scope="col">Model Alias</th>
+                <th scope="col">Category</th>
+                <th scope="col">Upstream Target</th>
+                <th scope="col">Required Key / Env</th>
+                <th scope="col">Failover Rule</th>
+              </tr>
+            </thead>
+            <tbody id="models-table-body">
+              <!-- Dynamically populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="models-empty-state" class="empty-state">
+          <div class="empty-state-title">No matching models found</div>
+          <div class="empty-state-desc">Try searching for a different keyword or reset the category filter.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Integrations Section -->
+    <section class="section" id="integrations">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-eyebrow">Developer Experience</div>
+          <h2 class="section-title">Integration Hub: IDEs, CLI & SDKs</h2>
+          <p class="section-desc">
+            Point any OpenAI-compatible tool to http://localhost:4000/v1 with your MASTER_KEY. Select a tab below for exact configurations.
+          </p>
+        </div>
+
+        <div class="tabs-nav" role="tablist" aria-label="IDE and Tooling Configurations">
+          <button class="tab-btn active" role="tab" aria-selected="true" data-tab="tab-cursor" id="btn-tab-cursor" type="button">Cursor IDE</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-continue" id="btn-tab-continue" type="button">Continue</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-cline" id="btn-tab-cline" type="button">Cline / Roo Code</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-aider" id="btn-tab-aider" type="button">Aider CLI</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-python" id="btn-tab-python" type="button">Python SDK</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-curl" id="btn-tab-curl" type="button">cURL Test</button>
+        </div>
+
+        <!-- Tab 1: Cursor -->
+        <div id="tab-cursor" class="tab-pane active" role="tabpanel" aria-labelledby="btn-tab-cursor">
+          <div class="integration-card">
+            <div class="integration-card-header">
+              <h3 class="integration-title">Cursor IDE Configuration</h3>
+              <p class="integration-desc">Open Cursor Settings -> Models -> OpenAI API Key. Override the Base URL to point to your local gateway.</p>
+            </div>
+            <div class="code-box">
+              <div class="code-box-header">
+                <span class="code-box-lang">Cursor Settings UI</span>
+                <button class="copy-btn" data-target="#code-cursor" type="button">Copy</button>
+              </div>
+              <div class="code-box-content">
+                <pre id="code-cursor"><code>OpenAI API Key : [Your MASTER_KEY from .env]
+Override Base URL: http://localhost:4000/v1
+
+Add Custom Models:
+- gpt-4o
+- claude-3-5-sonnet
+- gemini-2.0-flash
+- groq-llama-3.3-70b
+- ollama-deepseek-r1</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Continue -->
+        <div id="tab-continue" class="tab-pane" role="tabpanel" aria-labelledby="btn-tab-continue">
+          <div class="integration-card">
+            <div class="integration-card-header">
+              <h3 class="integration-title">Continue Extension (~/.continue/config.json)</h3>
+              <p class="integration-desc">Define your models using the openai provider pointing to localhost:4000/v1.</p>
+            </div>
+            <div class="code-box">
+              <div class="code-box-header">
+                <span class="code-box-lang">JSON</span>
+                <button class="copy-btn" data-target="#code-continue" type="button">Copy</button>
+              </div>
+              <div class="code-box-content">
+                <pre id="code-continue"><code>{
+  "models": [
+    {
+      "title": "LiteLLM - Claude 3.5 Sonnet",
+      "provider": "openai",
+      "model": "claude-3-5-sonnet",
+      "apiKey": "sk-your-secure-and-long-master-key-here",
+      "apiBase": "http://localhost:4000/v1"
+    },
+    {
+      "title": "LiteLLM - Llama 3.3 70B (Groq)",
+      "provider": "openai",
+      "model": "groq-llama-3.3-70b",
+      "apiKey": "sk-your-secure-and-long-master-key-here",
+      "apiBase": "http://localhost:4000/v1"
+    }
+  ]
+}</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Cline -->
+        <div id="tab-cline" class="tab-pane" role="tabpanel" aria-labelledby="btn-tab-cline">
+          <div class="integration-card">
+            <div class="integration-card-header">
+              <h3 class="integration-title">Cline / Roo Code Settings</h3>
+              <p class="integration-desc">Select OpenAI Compatible as provider in extension settings.</p>
+            </div>
+            <div class="code-box">
+              <div class="code-box-header">
+                <span class="code-box-lang">Extension Settings</span>
+                <button class="copy-btn" data-target="#code-cline" type="button">Copy</button>
+              </div>
+              <div class="code-box-content">
+                <pre id="code-cline"><code>API Provider : OpenAI Compatible
+Base URL     : http://localhost:4000/v1
+API Key      : [Your MASTER_KEY value]
+Model ID     : claude-3-5-sonnet (or any configured model alias)</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Aider -->
+        <div id="tab-aider" class="tab-pane" role="tabpanel" aria-labelledby="btn-tab-aider">
+          <div class="integration-card">
+            <div class="integration-card-header">
+              <h3 class="integration-title">Aider CLI Pair Programming</h3>
+              <p class="integration-desc">Set environment variables or launch with flags directly from your terminal.</p>
+            </div>
+            <div class="code-box">
+              <div class="code-box-header">
+                <span class="code-box-lang">Bash</span>
+                <button class="copy-btn" data-target="#code-aider" type="button">Copy</button>
+              </div>
+              <div class="code-box-content">
+                <pre id="code-aider"><code># Export connection parameters
+export OPENAI_API_BASE="http://localhost:4000/v1"
+export OPENAI_API_KEY="sk-your-secure-and-long-master-key-here"
+
+# Launch Aider with desired model
+aider --model openai/claude-3-5-sonnet
+
+# Or with local Ollama model
+aider --model openai/ollama-deepseek-r1</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 5: Python SDK -->
+        <div id="tab-python" class="tab-pane" role="tabpanel" aria-labelledby="btn-tab-python">
+          <div class="integration-card">
+            <div class="integration-card-header">
+              <h3 class="integration-title">Python (Official OpenAI SDK)</h3>
+              <p class="integration-desc">Direct substitution of base_url in your client initialization.</p>
+            </div>
+            <div class="code-box">
+              <div class="code-box-header">
+                <span class="code-box-lang">Python</span>
+                <button class="copy-btn" data-target="#code-python" type="button">Copy</button>
+              </div>
+              <div class="code-box-content">
+                <pre id="code-python"><code>from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:4000/v1",
+    api_key="sk-your-secure-and-long-master-key-here",
+)
+
+response = client.chat.completions.create(
+    model="claude-3-5-sonnet",
+    messages=[
+        {"role": "system", "content": "You are a helpful coding assistant."},
+        {"role": "user", "content": "Explain connection pooling in PostgreSQL."},
+    ],
+)
+
+print(response.choices[0].message.content)</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 6: cURL -->
+        <div id="tab-curl" class="tab-pane" role="tabpanel" aria-labelledby="btn-tab-curl">
+          <div class="integration-card">
+            <div class="integration-card-header">
+              <h3 class="integration-title">Terminal Verification via cURL</h3>
+              <p class="integration-desc">Run a test chat completion request to verify gateway responsiveness.</p>
+            </div>
+            <div class="code-box">
+              <div class="code-box-header">
+                <span class="code-box-lang">Bash</span>
+                <button class="copy-btn" data-target="#code-curl" type="button">Copy</button>
+              </div>
+              <div class="code-box-content">
+                <pre id="code-curl"><code>curl -X POST "http://localhost:4000/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-your-secure-and-long-master-key-here" \
+  -d '{
+    "model": "gpt-4o-mini",
+    "messages": [
+      {"role": "user", "content": "Reply with a one-sentence confirmation."}
+    ]
+  }'</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Operations & Tunnels Section -->
+    <section class="section" id="operations">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-eyebrow">Production Operations</div>
+          <h2 class="section-title">Remote Access, Backups & Monitoring</h2>
+          <p class="section-desc">
+            Hardened management workflows for self-hosted instances. Zero open inbound ports required when using built-in secure tunnels.
+          </p>
+        </div>
+
+        <div class="ops-grid">
+          <div class="ops-card">
+            <h3 class="ops-card-title">Remote Access Methods</h3>
+            <p class="ops-card-desc">
+              Connect IDEs on laptops to your home server without exposing ports to the public internet:
+            </p>
+            <div class="ops-command"># 1. Cloudflare Tunnel (Zero Trust)
+./tunnels/cloudflare/start-cloudflare.sh
+
+# 2. Tailscale Private Mesh VPN
+./tunnels/tailscale/start-tailscale.sh
+
+# 3. ngrok Ephemeral Tunnel
+./tunnels/ngrok/start-ngrok.sh</div>
+          </div>
+
+          <div class="ops-card">
+            <h3 class="ops-card-title">Automated Database Backups</h3>
+            <p class="ops-card-desc">
+              Gzip-compressed PostgreSQL backups with retention rotation and owner-only 0600 permissions:
+            </p>
+            <div class="ops-command"># Create timestamped compressed backup
+make backup
+
+# Restore a specific backup snapshot
+make restore FILE=backups/litellm_backup_YYYYMMDD_HHMMSS.sql.gz</div>
+          </div>
+
+          <div class="ops-card">
+            <h3 class="ops-card-title">Prometheus & Grafana Telemetry</h3>
+            <p class="ops-card-desc">
+              Real-time latency metrics, spend tracking, and error code monitoring:
+            </p>
+            <div class="ops-command"># Prometheus Metrics Target
+http://127.0.0.1:9090
+
+# Grafana Dashboard (Credentials in .env)
+http://127.0.0.1:3001
+
+# Readiness Healthcheck Probe
+curl http://127.0.0.1:4000/health/readiness</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section" id="faq">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-eyebrow">Practical Answers</div>
+          <h2 class="section-title">Frequently Asked Questions</h2>
+          <p class="section-desc">
+            Direct answers to common operational questions regarding LiteLLM Proxy configuration.
+          </p>
+        </div>
+
+        <div class="faq-list">
+          <details class="faq-item" open>
+            <summary class="faq-summary">How do I authenticate requests to the gateway?</summary>
+            <div class="faq-content">
+              Requests require an HTTP header <code>Authorization: Bearer &lt;KEY&gt;</code>. You can use the root <code>MASTER_KEY</code> defined in your <code>.env</code> file, or generate fine-grained virtual keys with spend caps and model restrictions from the admin UI at <code>http://localhost:4000/ui</code>.
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-summary">Can I run local models without paying for cloud API keys?</summary>
+            <div class="faq-content">
+              Yes. If you have Ollama, LM Studio, or vLLM running on your machine, you can make requests to <code>ollama-llama3.3</code>, <code>ollama-deepseek-r1</code>, or <code>lmstudio-local</code> immediately without supplying OpenAI or Anthropic API keys.
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-summary">How do automated fallback chains trigger during rate limits?</summary>
+            <div class="faq-content">
+              When an upstream provider returns an HTTP 429 (Rate Limit Exceeded) or HTTP 5xx error, LiteLLM Proxy automatically catches the exception and reroutes the identical prompt to the next fallback model defined in <code>config.yaml</code> (e.g. <code>gpt-4o</code> reroutes to <code>gemini-2.0-flash</code>, then <code>claude-3-5-sonnet</code>). The client receives a successful response without failing.
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-summary">Where are conversations and prompts stored?</summary>
+            <div class="faq-content">
+              The gateway is configured with production logging flags. User prompts and completion tokens are never stored to disk or container log files. The PostgreSQL database stores only virtual API key hashes, team metadata, and token usage counts for spend tracking.
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-col-title">Home LiteLLM</div>
+          <p style="margin-bottom: 12px; line-height: 1.5;">
+            Production-ready local AI proxy gateway. Unifies commercial cloud providers and local open-source models under a single OpenAI-compatible REST endpoint.
+          </p>
+          <p>Released under the MIT License.</p>
+        </div>
+
+        <div class="footer-col">
+          <div class="footer-col-title">Documentation</div>
+          <ul class="footer-links">
+            <li><a href="INTEGRATION_GUIDE.md">Integration Guide</a></li>
+            <li><a href="https://github.com/AtaCanYmc/home-lite-llm/blob/main/README.md">Repository Readme</a></li>
+            <li><a href="https://github.com/AtaCanYmc/home-lite-llm/blob/main/SECURITY.md">Security Policy</a></li>
+            <li><a href="https://github.com/AtaCanYmc/home-lite-llm/blob/main/CHANGELOG.md">Changelog</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <div class="footer-col-title">Quick Links</div>
+          <ul class="footer-links">
+            <li><a href="#models">Model Catalog</a></li>
+            <li><a href="#integrations">IDE Setups</a></li>
+            <li><a href="#operations">Tunnels & Backups</a></li>
+            <li><a href="https://github.com/AtaCanYmc/home-lite-llm">GitHub Repository</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Home LiteLLM Contributors. Built with zero dependencies for GitHub Pages.</div>
+        <div>Version 1.1.1</div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

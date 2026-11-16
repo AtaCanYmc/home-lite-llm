@@ -6,7 +6,10 @@
 
 A centralized, OpenAI-compatible LLM gateway with PostgreSQL virtual key management, Prometheus observability, and automated model failovers.
 
+[Explore Live Documentation and Model Catalog](https://atacanymc.github.io/home-lite-llm/)
+
 <p align="left">
+  <a href="https://atacanymc.github.io/home-lite-llm/"><img src="https://img.shields.io/badge/docs-GitHub%20Pages-0284c7" alt="Documentation Site" /></a>
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License MIT" /></a>
   <a href="https://github.com/BerriAI/litellm"><img src="https://img.shields.io/badge/LiteLLM-v1.82.3-purple.svg" alt="LiteLLM Version" /></a>
   <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-16.8-blue.svg" alt="PostgreSQL 16.8" /></a>
