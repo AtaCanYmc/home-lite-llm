@@ -12,9 +12,9 @@ Concrete milestones grouped by release version.
 
 ## v1.3.0
 
-- [ ] CI execution of `scripts/test_hlm.sh` in `.github/workflows/ci.yml`
-- [ ] Homebrew formula `pkgshare` installation for `docs/homelitellm.patch.yml`
-- [ ] Automated Bruno API smoke test job against ephemeral LiteLLM container in CI
+- [x] CI execution of `scripts/test_hlm.sh` in `.github/workflows/ci.yml`
+- [x] Homebrew formula `pkgshare` installation for `docs/homelitellm.patch.yml`
+- [x] Automated Bruno API smoke test job against ephemeral LiteLLM container in CI
 
 ## v1.4.0
 

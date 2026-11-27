@@ -45,6 +45,11 @@ jobs:
           bash -n tunnels/cloudflare/start-cloudflare.sh
           bash -n tunnels/ngrok/start-ngrok.sh
           bash -n tunnels/tailscale/start-tailscale.sh
+          bash -n scripts/hlm
+          bash -n scripts/test_hlm.sh
+
+      - name: Run hlm CLI Tests
+        run: bash scripts/test_hlm.sh
 
       - name: Create Environment File for CI
         run: cp .env.example .env
@@ -91,3 +96,27 @@ jobs:
               exit(1)
           print("All internal markdown links verified.")
           '
+
+  bruno-smoke:
+    name: Bruno API Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Start Ephemeral LiteLLM Container
+        run: |
+          docker run -d --name litellm-smoke -p 4000:4000 \
+            -e PORT=4000 \
+            ghcr.io/berriai/litellm:main-latest --port 4000
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:4000/health/readiness; then
+              break
+            fi
+            sleep 2
+          done
+
+      - name: Run Bruno Health Readiness Smoke Test
+        run: |
+          cd collections/bruno
+          npx --yes @usebruno/cli run 14-health-readiness.bru --env Local
