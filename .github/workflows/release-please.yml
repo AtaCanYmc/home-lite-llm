@@ -29,11 +29,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Bump Homebrew Formula
-        uses: mislav/bump-homebrew-formula-action@v3
+        uses: mislav/bump-homebrew-formula-action@v4.2
         with:
           formula-name: home-lite-llm
           homebrew-tap: AtaCanYmc/homebrew-tap
           tag-name: ${{ needs.release-please.outputs.tag_name }}
           commit-message: "home-lite-llm {{version}}"
         env:
-          GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN || secrets.GITHUB_TOKEN }}
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
