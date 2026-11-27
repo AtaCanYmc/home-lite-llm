@@ -30,3 +30,16 @@ body:json {
     "temperature": 0.7
   }
 }
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Chat completion returns message content", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("choices");
+    expect(body.choices).to.be.an("array").that.is.not.empty;
+    expect(body.choices[0].message.content).to.be.a("string").that.is.not.empty;
+  });
+}

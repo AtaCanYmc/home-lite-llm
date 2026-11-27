@@ -27,3 +27,15 @@ body:json {
     "stream": true
   }
 }
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Stream response contains SSE data chunks", function () {
+    const body = res.getBody();
+    expect(body).to.be.a("string");
+    expect(body).to.include("data:");
+  });
+}

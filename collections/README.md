@@ -30,7 +30,11 @@ collections/
 │   ├── 10-chat-local-lmstudio.bru                      # LM Studio local inference
 │   ├── 11-chat-local-vllm.bru                          # vLLM GPU inference server
 │   ├── 12-streaming-chat.bru                           # Server-Sent Events stream
-│   └── 13-generate-virtual-key.bru                     # Admin key generation
+│   ├── 13-generate-virtual-key.bru                     # Admin key generation
+│   ├── 14-health-readiness.bru                         # Container readiness probe
+│   ├── 15-metrics.bru                                  # Prometheus metrics
+│   ├── 16-key-info.bru                                 # Virtual key metadata
+│   └── 17-spend-calculate.bru                          # Token cost calculation
 └── README.md
 ```
 

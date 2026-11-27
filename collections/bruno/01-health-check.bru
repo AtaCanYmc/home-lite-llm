@@ -9,3 +9,13 @@ get {
   body: none
   auth: none
 }
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Health check returns object", function () {
+    expect(res.getBody()).to.be.an("object");
+  });
+}

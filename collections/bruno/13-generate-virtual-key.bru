@@ -25,3 +25,15 @@ body:json {
     }
   }
 }
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Response contains generated virtual key", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("key");
+    expect(body.key).to.be.a("string");
+  });
+}
