@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ "$SOURCE" != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+ROOT_DIR="$(cd -P "$(dirname "$SOURCE")/.." && pwd)"
 cd "$ROOT_DIR"
 
 usage() {
@@ -56,7 +62,11 @@ case "$cmd" in
       (cd collections/bruno && npx @usebruno/cli run --env Local "$@")
     fi
     ;;
-  dsh)         npx @deepseek-ai/dsh web --patch docs/homelitellm.patch.yml "$@" ;;
+  dsh)
+    PATCH_FILE="$ROOT_DIR/docs/homelitellm.patch.yml"
+    [ -f "$PATCH_FILE" ] || PATCH_FILE="$ROOT_DIR/share/home-lite-llm/homelitellm.patch.yml"
+    npx @deepseek-ai/dsh web --patch "$PATCH_FILE" "$@"
+    ;;
   backup)      ./scripts/backup_db.sh "$@" ;;
   restore)
     if [ -z "${1:-}" ]; then
