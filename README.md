@@ -338,4 +338,5 @@ Yes. If only local models (`ollama-*`, `lmstudio-local`, `vllm-*`) are queried a
 - **License**: MIT License. See [LICENSE.md](LICENSE.md) for legal text.
 - **Vulnerability Disclosure**: Follow the private disclosure protocol in [SECURITY.md](SECURITY.md).
 - **Contribution Standards**: Review [CONTRIBUTING.md](CONTRIBUTING.md) and adhere to [Conventional Commits](https://www.conventionalcommits.org/).
+- **Roadmap**: Track release milestones in [ROADMAP.md](ROADMAP.md).
 - **Code of Conduct**: Community interaction standards are governed by [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
