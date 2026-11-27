@@ -34,3 +34,4 @@ Thumbs.db
 *.sqlite
 *.db
 postgres_data/
+backups/

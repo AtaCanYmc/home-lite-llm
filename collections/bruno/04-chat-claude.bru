@@ -1,0 +1,41 @@
+meta {
+  name: Chat - Anthropic Claude 3.5 Sonnet
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/v1/chat/completions
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "model": "claude-3-5-sonnet",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Why is unified API gateway beneficial for multi-LLM architectures?"
+      }
+    ],
+    "max_tokens": 200
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Chat completion returns message content", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("choices");
+    expect(body.choices).to.be.an("array").that.is.not.empty;
+    expect(body.choices[0].message.content).to.be.a("string").that.is.not.empty;
+  });
+}

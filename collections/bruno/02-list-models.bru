@@ -1,0 +1,23 @@
+meta {
+  name: List Active Models
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/v1/models
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Response contains models data array", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("data");
+    expect(body.data).to.be.an("array");
+  });
+}

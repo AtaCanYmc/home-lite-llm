@@ -1,0 +1,45 @@
+meta {
+  name: Chat - Groq Llama 3.3 70B (Ultra-fast)
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{base_url}}/v1/chat/completions
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "model": "groq-llama-3.3-70b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful and ultra-fast assistant powered by Groq LPU."
+      },
+      {
+        "role": "user",
+        "content": "Provide 3 concise advantages of LPU-based LLM inference."
+      }
+    ],
+    "temperature": 0.6
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Chat completion returns message content", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("choices");
+    expect(body.choices).to.be.an("array").that.is.not.empty;
+    expect(body.choices[0].message.content).to.be.a("string").that.is.not.empty;
+  });
+}

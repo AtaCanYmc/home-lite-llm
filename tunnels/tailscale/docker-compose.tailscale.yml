@@ -1,0 +1,47 @@
+# Tailscale Integration — Docker Compose Override
+#
+# Tailscale creates a secure mesh VPN so that only trusted devices
+# (your phone, laptop, etc.) can access LiteLLM.
+# The server is never exposed to the public internet — only devices
+# joined to your Tailscale network can reach it.
+#
+# Usage:
+#   Automatic join with TS_AUTHKEY (headless mode):
+#     TS_AUTHKEY=<authkey> docker compose -f docker-compose.yml -f tunnels/tailscale/docker-compose.tailscale.yml up -d
+#
+#   Interactive login (browser-based):
+#     docker compose -f docker-compose.yml -f tunnels/tailscale/docker-compose.tailscale.yml up -d
+#     docker exec -it litellm-tailscale tailscale login
+#
+# Or via the helper script:
+#   ./tunnels/tailscale/start-tailscale.sh
+
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: litellm-tailscale
+    hostname: litellm-proxy          # Name shown inside the Tailscale network
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY:-}
+      # Tailscale Funnel: publicly accessible HTTPS endpoint (optional)
+      - TS_SERVE_CONFIG=${TS_SERVE_CONFIG:-}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_EXTRA_ARGS=${TS_EXTRA_ARGS:---advertise-tags=tag:litellm}
+    volumes:
+      - tailscale_state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    network_mode: "service:litellm"  # Share LiteLLM's network namespace
+    depends_on:
+      - litellm
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+volumes:
+  tailscale_state:

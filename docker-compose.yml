@@ -6,15 +6,15 @@ services:
     container_name: litellm-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: litellm
-      POSTGRES_USER: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-litellm}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your_postgres_password_here}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - litellm-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d litellm || exit 1"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-litellm} || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -27,29 +27,33 @@ services:
 
   # LiteLLM Proxy Server
   litellm:
-    image: ghcr.io/berriai/litellm:main-v1.61.1
+    image: ghcr.io/berriai/litellm:main-v1.82.3
     container_name: litellm-proxy
     restart: unless-stopped
     ports:
-      - "4000:4000"
+      # Bound to localhost (127.0.0.1) by default to prevent accidental network exposure.
+      # Override with LITELLM_HOST=0.0.0.0 in .env if external LAN access is required.
+      - "${LITELLM_HOST:-127.0.0.1}:4000:4000"
     volumes:
       - ./config.yaml:/app/config.yaml
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/litellm}
-      LITELLM_MASTER_KEY: ${MASTER_KEY}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-your_postgres_password_here}@db:5432/${POSTGRES_DB:-litellm}}
+      LITELLM_MASTER_KEY: ${MASTER_KEY:-sk-your-secure-and-long-master-key-here}
+      UI_USERNAME: ${UI_USERNAME:-litellm_admin}
+      UI_PASSWORD: ${UI_PASSWORD:-sk-your-secure-and-long-master-key-here}
       STORE_MODEL_IN_DB: "True"
     command:
       - "--config"
       - "/app/config.yaml"
       - "--port"
       - "4000"
-      - "--detailed_debug"
     networks:
       - litellm-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:4000/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:4000/health/readiness || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -66,11 +70,12 @@ services:
 
   # Prometheus Metrics Collector (Observability)
   prometheus:
-    image: prom/prometheus:v2.51.0
+    image: prom/prometheus:v3.16.0
     container_name: litellm-prometheus
     restart: unless-stopped
     ports:
-      - "9090:9090"
+      # Bound to localhost (127.0.0.1) to avoid public unauthenticated PromQL exposure.
+      - "${PROMETHEUS_HOST:-127.0.0.1}:9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
@@ -83,9 +88,35 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # Grafana Analytics & Metrics Dashboard
+  grafana:
+    image: grafana/grafana:13.3.1
+    container_name: litellm-grafana
+    restart: unless-stopped
+    ports:
+      # Bound to localhost (127.0.0.1) to prevent unauthorized dashboard access.
+      - "${GRAFANA_HOST:-127.0.0.1}:3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    networks:
+      - litellm-network
+    depends_on:
+      - prometheus
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 networks:
   litellm-network:
     driver: bridge
 
 volumes:
   postgres_data:
+  grafana_data:

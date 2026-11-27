@@ -1,0 +1,32 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "include-component-in-tag": false,
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "home-lite-llm",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "site/index.html"
+        },
+        {
+          "type": "generic",
+          "path": "scripts/hlm"
+        }
+      ],
+      "bootstrap-sha": "1f9dbef1cecf7b019a2965946a1107e4bf58c5c1",
+      "changelog-sections": [
+        {"type": "feat", "section": "Features"},
+        {"type": "fix", "section": "Bug Fixes"},
+        {"type": "perf", "section": "Performance Improvements"},
+        {"type": "refactor", "section": "Code Refactoring"},
+        {"type": "docs", "section": "Documentation"},
+        {"type": "style", "section": "Styles", "hidden": true},
+        {"type": "test", "section": "Tests", "hidden": true},
+        {"type": "chore", "section": "Miscellaneous Chores", "hidden": true}
+      ]
+    }
+  }
+}

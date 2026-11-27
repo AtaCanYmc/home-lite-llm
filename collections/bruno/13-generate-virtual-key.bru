@@ -1,0 +1,39 @@
+meta {
+  name: Generate Virtual API Key
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{base_url}}/key/generate
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "max_budget": 10.0,
+    "duration": "30d",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku", "gemini-2.0-flash", "groq-llama-3.3-70b", "ollama-llama3.3", "grok-2"],
+    "metadata": {
+      "user": "developer-1",
+      "project": "core-backend"
+    }
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Response contains generated virtual key", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("key");
+    expect(body.key).to.be.a("string");
+  });
+}

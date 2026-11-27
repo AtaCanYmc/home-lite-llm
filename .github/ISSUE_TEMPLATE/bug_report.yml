@@ -1,0 +1,50 @@
+name: Bug Report
+description: Report a reproducible defect or deployment issue
+title: "fix: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please verify the issue has not already been reported before submitting.
+        For security vulnerability reports, refer to [SECURITY.md](../../SECURITY.md).
+  - type: textarea
+    id: summary
+    attributes:
+      label: Bug Description
+      description: Provide a concise technical description of the defect.
+      placeholder: Describe the observed defect.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Exact commands to reproduce the issue.
+      placeholder: |
+        1. Run command '...'
+        2. Inspect output '...'
+        3. Observe error '...'
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: Describe what should have happened.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Container or Execution Logs
+      description: Paste relevant terminal output from 'docker compose logs litellm' or 'make validate'.
+      render: shell
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS version, Docker version, Docker Compose version.
+      placeholder: macOS 15.0, Docker 27.2.0, Compose v2.29.2
+    validations:
+      required: true

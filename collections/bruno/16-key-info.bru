@@ -1,0 +1,23 @@
+meta {
+  name: Get Virtual Key Info
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{base_url}}/key/info
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Key info contains key metadata", function () {
+    const data = res.getBody();
+    expect(data).to.be.an("object");
+    expect(data).to.have.property("info");
+  });
+}

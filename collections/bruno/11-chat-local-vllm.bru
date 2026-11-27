@@ -1,0 +1,40 @@
+meta {
+  name: Chat - Local vLLM Engine
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{base_url}}/v1/chat/completions
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "model": "vllm-llama3",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain throughput advantages of continuous batching in vLLM."
+      }
+    ]
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Chat completion returns message content", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("choices");
+    expect(body.choices).to.be.an("array").that.is.not.empty;
+    expect(body.choices[0].message.content).to.be.a("string").that.is.not.empty;
+  });
+}
