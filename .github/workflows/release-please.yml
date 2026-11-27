@@ -27,7 +27,16 @@ jobs:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ubuntu-latest
+    env:
+      COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN || secrets.RELEASE_PLEASE_TOKEN }}
     steps:
+      - name: Check Homebrew tap credential
+        run: |
+          if [ -z "$COMMITTER_TOKEN" ]; then
+            echo "::error::Set HOMEBREW_TAP_TOKEN to a token with write access to AtaCanYmc/homebrew-tap."
+            exit 1
+          fi
+
       - name: Bump Homebrew Formula
         uses: mislav/bump-homebrew-formula-action@v4.2
         with:
@@ -36,5 +45,4 @@ jobs:
           tag-name: ${{ needs.release-please.outputs.tag_name }}
           commit-message: "home-lite-llm {{version}}"
         env:
-          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

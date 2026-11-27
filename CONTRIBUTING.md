@@ -60,6 +60,20 @@ Feature proposals must be submitted through the [Feature Request Form](.github/I
 5. Push your branch and open a Pull Request against `main`. Ensure all CI checks pass.
 6. Automated Releases: This repository uses Release Please. Merged pull requests formatted with Conventional Commits automatically update the Release PR, [CHANGELOG.md](CHANGELOG.md), and `.release-please-manifest.json`. Merging the automated Release PR publishes the GitHub Release and git tag.
 
+### Homebrew release configuration
+
+The release workflow updates `AtaCanYmc/homebrew-tap` after publishing a release.
+Set the repository Actions secret `HOMEBREW_TAP_TOKEN` to a personal access
+token with Contents read/write access to the tap and, if a pull request is
+required, Pull requests read/write access. The workflow falls back to
+`RELEASE_PLEASE_TOKEN` only if `HOMEBREW_TAP_TOKEN` is unset; that token must
+also have access to the tap. The automatic `GITHUB_TOKEN` cannot write to a
+different repository.
+
+If a tap bump failed because the token was missing, configure
+`HOMEBREW_TAP_TOKEN` and rerun the failed job. A rerun uses the original
+workflow version, so an older run may not have the fallback.
+
 ---
 
 ## Local Development and Verification
