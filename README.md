@@ -78,26 +78,7 @@ For non-interactive headless environments, pass the `-y` flag:
 
 LiteLLM Proxy unifies multiple LLM providers behind an OpenAI-compatible routing layer. PostgreSQL tracks API budgets, rate limits, and request logs. Prometheus scrapes gateway telemetry for visualization in Grafana.
 
-```mermaid
-flowchart TD
-    Client["Clients (Cursor, Continue, Aider, SDKs, cURL)"]
-    Gateway["LiteLLM Proxy Gateway (:4000)"]
-    DB[("PostgreSQL Database (:5432)")]
-    Prom[("Prometheus Telemetry (:9090)")]
-    Grafana["Grafana Dashboards (:3001)"]
-
-    subgraph Providers["Upstream Model Backends"]
-        Cloud["Cloud Providers (OpenAI, Anthropic, Gemini, Grok, Groq, DeepSeek)"]
-        Local["Local Inference (Ollama, LM Studio, vLLM, LocalAI)"]
-    end
-
-    Client -->|"OpenAI API (HTTP /v1)"| Gateway
-    Gateway -->|"Spend Tracking and Auth"| DB
-    Gateway -->|"Routing and Fallback"| Cloud
-    Gateway -->|"Routing and Fallback"| Local
-    Prom -->|"Scrape /metrics"| Gateway
-    Grafana -->|"PromQL Queries"| Prom
-```
+![home-lite-llm System Architecture](docs/diagrams/architecture.svg)
 
 > Interactive HTML/SVG version: [docs/diagrams/architecture.html](docs/diagrams/architecture.html)
 

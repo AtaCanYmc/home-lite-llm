@@ -51,22 +51,7 @@ Use any configured model alias in client requests:
 
 ## 2. Architecture and Request Flow
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Client as Client / IDE / CLI
-    participant Proxy as LiteLLM Gateway (:4000)
-    participant DB as PostgreSQL (:5432)
-    participant Provider as Upstream Provider (Cloud / Local)
-
-    Client->>Proxy: POST /v1/chat/completions (Bearer Key, Model)
-    Proxy->>DB: Validate Key and Deduct Budget
-    DB-->>Proxy: Key Valid (Remaining: $9.50)
-    Proxy->>Provider: Forward Request to Selected Backend
-    Provider-->>Proxy: Response Stream or Token Payload
-    Proxy->>DB: Record Token Consumption and Spend
-    Proxy-->>Client: 200 OK (OpenAI-compatible JSON payload)
-```
+![Request and Spend Tracking Flow](diagrams/request-flow.svg)
 
 > Interactive HTML/SVG version: [docs/diagrams/request-flow.html](diagrams/request-flow.html)
 
