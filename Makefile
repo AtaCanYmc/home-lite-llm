@@ -3,7 +3,7 @@
 # Convenience commands for container lifecycle, configuration, tests, and backups
 # ==============================================================================
 
-.PHONY: help up start down stop restart status ps logs logs-litellm logs-db logs-grafana logs-prometheus build clean validate quickstart backup restore health test-models lint
+.PHONY: help up start down stop restart status ps logs logs-litellm logs-db logs-grafana logs-prometheus build clean validate quickstart backup restore health test-models test-api lint dsh
 
 # Default target when invoking `make` without arguments
 .DEFAULT_GOAL := help
@@ -67,6 +67,9 @@ quickstart: ## Lifecycle: Run the interactive quickstart wizard
 	@chmod +x quickstart.sh
 	@./quickstart.sh
 
+dsh: ## Lifecycle: Launch DeepSeek Harness (dsh) connected to LiteLLM
+	npx @deepseek-ai/dsh web --patch docs/homelitellm.patch.yml
+
 ## 📊 Monitoring & Logs
 ps: ## Logs: Show status of running containers
 	docker compose ps
@@ -104,6 +107,13 @@ test-models: ## Diagnostics: Query available models from LiteLLM proxy
 		curl -s -H "Authorization: Bearer $$KEY" http://localhost:4000/v1/models | python3 -m json.tool || echo "$(RED)❌ Failed to fetch models$(RESET)"; \
 	else \
 		curl -s http://localhost:4000/v1/models | python3 -m json.tool || echo "$(RED)❌ Failed to fetch models$(RESET)"; \
+	fi
+
+test-api: ## Diagnostics: Run Bruno API endpoint tests against Local environment
+	@if command -v bru >/dev/null 2>&1; then \
+		cd collections/bruno && bru run --env Local; \
+	else \
+		cd collections/bruno && npx @usebruno/cli run --env Local; \
 	fi
 
 lint: ## Diagnostics: Run pre-commit checks on repository
