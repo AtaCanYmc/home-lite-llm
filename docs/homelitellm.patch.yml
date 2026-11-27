@@ -1,0 +1,13 @@
+- id: llm-pi-ai
+  config:
+    providers:
+      home-lite-llm:
+        displayName: Home LiteLLM
+        api: openai-completions
+        baseURL: http://127.0.0.1:4000/v1
+        apiKeyEnv: LITELLM_API_KEY
+        models:
+          - id: gpt-4o
+            contextWindow: 128000
+          - id: claude-3-5-sonnet
+            contextWindow: 200000

@@ -144,6 +144,7 @@ The proxy exposes an OpenAI-compliant API endpoint at `http://localhost:4000/v1`
 - **Continue.dev**: Complete `~/.continue/config.json` configuration for chat, edit, autocomplete, and embeddings.
 - **Cline / Roo Code**: VS Code autonomous coding agent configuration using OpenAI Compatible provider mode.
 - **Aider**: Command-line flags and `.aider.conf.yml` templates for terminal pair programming.
+- **DeepSeek Harness (`dsh`)**: Coding agent integration via [homelitellm.patch.yml](docs/homelitellm.patch.yml) (`http://127.0.0.1:4000/v1`).
 - **Web UIs**: Container integration recipes for Open WebUI and LibreChat.
 
 ---

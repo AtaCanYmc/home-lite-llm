@@ -14,6 +14,7 @@ This guide provides technical specifications, configuration manifests, and code 
   - [Cursor IDE](#a-cursor-ide)
   - [Continue (VS Code and JetBrains)](#b-continue-vs-code-and-jetbrains)
   - [Cline / Roo Code (VS Code Extension)](#c-cline--roo-code-vs-code-extension)
+  - [DeepSeek Harness (dsh)](#d-deepseek-harness-dsh)
 - [Terminal and CLI Tooling Integration](#4-terminal-and-cli-tooling-integration)
   - [Aider Pair Programming CLI](#a-aider-pair-programming-cli)
   - [Environment Redirection for Official SDKs](#b-environment-redirection-for-official-sdks)
@@ -149,6 +150,36 @@ Configure `~/.continue/config.json`:
 4. Enter `MASTER_KEY` in the **API Key** input.
 5. Set **Model ID** to `claude-3-5-sonnet` or `groq-llama-3.3-70b`.
 6. Save and initiate tasks.
+
+---
+
+### D. DeepSeek Harness (`dsh`)
+
+Use `docs/homelitellm.patch.yml` to route DeepSeek Harness (`dsh`) through `home-lite-llm` at `http://127.0.0.1:4000/v1`.
+
+#### Quick Start (YAML Patch)
+
+```bash
+export LITELLM_API_KEY="sk-your-litellm-virtual-key"
+npx @deepseek-ai/dsh web --patch docs/homelitellm.patch.yml
+```
+
+#### Verify Configuration
+
+```bash
+npx @deepseek-ai/dsh web --patch docs/homelitellm.patch.yml --dump-config
+```
+
+#### Web UI Alternative
+
+1. Open `dsh` Web UI and go to **Settings** -> **Models** -> **Add a custom provider**.
+2. Set **API Protocol** to `openai-completions`, **Base URL** to `http://127.0.0.1:4000/v1`, and enter your virtual key.
+
+#### Security Notes
+
+- `dsh` reads local project files and executes commands on the host where it runs. Run `dsh` on your client workstation rather than inside the `home-lite-llm` Docker Compose stack.
+- For remote access, start with `npx @deepseek-ai/dsh web --no-open` and expose port `3080` only behind **Tailscale** or **Cloudflare Access**.
+- Optional hardening variables: `DSH_TELEMETRY_DISABLED=1` and `DSH_PERMISSION_MODE=read-only`.
 
 ---
 
