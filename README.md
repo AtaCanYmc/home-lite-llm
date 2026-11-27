@@ -16,6 +16,7 @@ A centralized, OpenAI-compatible LLM gateway with PostgreSQL virtual key managem
   <a href="https://github.com/BerriAI/litellm"><img src="https://img.shields.io/badge/LiteLLM-v1.82.3-purple.svg" alt="LiteLLM Version" /></a>
   <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-16.8-blue.svg" alt="PostgreSQL 16.8" /></a>
   <a href=".github/workflows/ci.yml"><img src="https://github.com/AtaCanYmc/home-lite-llm/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
+  <a href="https://codecov.io/gh/AtaCanYmc/home-lite-llm"><img src="https://codecov.io/gh/AtaCanYmc/home-lite-llm/graph/badge.svg" alt="Codecov" /></a>
   <a href="SECURITY.md"><img src="https://img.shields.io/badge/Security-Hardened-success.svg" alt="Security Hardened" /></a>
   <a href=".pre-commit-config.yaml"><img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white" alt="pre-commit" /></a>
 </p>
