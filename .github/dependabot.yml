@@ -5,6 +5,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "*"
     open-pull-requests-limit: 10
 
   # Maintain Docker images in Docker Compose configuration
