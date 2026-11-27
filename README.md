@@ -10,6 +10,8 @@ A centralized, OpenAI-compatible LLM gateway with PostgreSQL virtual key managem
 
 <p align="left">
   <a href="https://atacanymc.github.io/home-lite-llm/"><img src="https://img.shields.io/badge/docs-GitHub%20Pages-0284c7" alt="Documentation Site" /></a>
+  <a href="https://github.com/AtaCanYmc/home-lite-llm/releases"><img src="https://img.shields.io/github/v/release/AtaCanYmc/home-lite-llm?color=indigo" alt="Latest Release" /></a>
+  <a href="https://github.com/AtaCanYmc/homebrew-tap"><img src="https://img.shields.io/badge/Homebrew-tap-FBB040?logo=homebrew&logoColor=white" alt="Homebrew Tap" /></a>
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License MIT" /></a>
   <a href="https://github.com/BerriAI/litellm"><img src="https://img.shields.io/badge/LiteLLM-v1.82.3-purple.svg" alt="LiteLLM Version" /></a>
   <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-16.8-blue.svg" alt="PostgreSQL 16.8" /></a>
@@ -92,7 +94,9 @@ LiteLLM Proxy unifies multiple LLM providers behind an OpenAI-compatible routing
 
 ---
 
-## Makefile Command Reference
+## Makefile &amp; CLI Reference
+
+Install the `hlm` CLI via Homebrew (`brew install atacanymc/tap/home-lite-llm`) or symlink locally (`make install-cli`), then run `hlm up`, `hlm health`, `hlm test-api`, or `hlm dsh`.
 
 A `Makefile` is provided to standardize deployment, diagnostics, and database operations into single-word commands:
 

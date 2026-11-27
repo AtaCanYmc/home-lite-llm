@@ -118,7 +118,19 @@
         <div class="flex items-center justify-between gap-3 w-full sm:w-auto px-4 py-3 rounded-2xl bg-surface border border-white/15 shadow-inner font-mono text-xs sm:text-sm text-slate-300">
           <div class="flex items-center gap-2.5 overflow-x-auto">
             <span class="text-indigo-400 select-none">$</span>
-            <code id="hero-cmd" class="whitespace-nowrap">git clone https://github.com/atacanymc/home-lite-llm &amp;&amp; ./quickstart.sh</code>
+            <code id="hero-cmd" class="whitespace-nowrap">brew install atacanymc/tap/home-lite-llm</code>
+          </div>
+          <button onclick="copyText('brew install atacanymc/tap/home-lite-llm')"
+                  title="Copy Homebrew command"
+                  aria-label="Copy Homebrew install command"
+                  class="p-2 rounded-xl bg-white/5 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-300 transition-colors shrink-0">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+        </div>
+        <div class="flex items-center justify-between gap-3 w-full sm:w-auto px-4 py-3 rounded-2xl bg-surface border border-white/15 shadow-inner font-mono text-xs sm:text-sm text-slate-300">
+          <div class="flex items-center gap-2.5 overflow-x-auto">
+            <span class="text-indigo-400 select-none">$</span>
+            <code class="whitespace-nowrap">git clone https://github.com/atacanymc/home-lite-llm &amp;&amp; ./quickstart.sh</code>
           </div>
           <button onclick="copyText('git clone https://github.com/atacanymc/home-lite-llm && ./quickstart.sh')"
                   title="Copy command"
