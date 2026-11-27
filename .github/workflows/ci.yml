@@ -35,5 +35,6 @@ jobs:
 
       - name: Validate Docker Compose Configuration
         run: |
+          cp .env.example .env
           docker compose config
           echo "✅ docker-compose.yml configuration valid"
