@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home LiteLLM — Self-Hosted AI Gateway &amp; Unified Routing</title>
+  <meta name="description" content="Production-ready self-hosted LiteLLM gateway for home labs, local inference (Ollama, LM Studio, vLLM), and unified cloud AI routing." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: '#050507',
+            surface: '#0C0D12',
+            surfaceLight: '#13151D',
+            accent: '#6366F1',
+            accentGlow: '#818CF8',
+            emeraldGlow: '#10B981',
+          },
+          animation: {
+            'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'flow': 'dash 2.5s linear infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            dash: {
+              '0%': { strokeDashoffset: '48' },
+              '100%': { strokeDashoffset: '0' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #050507; }
+    ::-webkit-scrollbar-thumb { background: #1E202B; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #313548; }
+    .bg-noise {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
+    .bento-card {
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
+    }
+    .bento-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.12), transparent 40%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .bento-card:hover::before { opacity: 1; }
+    .bento-card:hover { transform: translateY(-3px); border-color: rgba(129, 140, 248, 0.35); }
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+    .flow-line { stroke-dasharray: 6 6; animation: dash 1.5s linear infinite; }
+    @keyframes dash { to { stroke-dashoffset: -24; } }
+  </style>
+</head>
+<body class="bg-obsidian text-slate-200 font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-200 overflow-x-hidden">
+  <div class="fixed inset-0 bg-noise pointer-events-none z-0"></div>
+  <div class="fixed top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-indigo-600/10 blur-[140px] pointer-events-none z-0 animate-pulse-slow"></div>
+  <div class="fixed bottom-[-20%] right-[-10%] w-[45vw] h-[45vw] rounded-full bg-emerald-500/10 blur-[140px] pointer-events-none z-0 animate-pulse-slow"></div>
+
+  <div id="toast" class="fixed bottom-6 right-6 z-50 translate-y-20 opacity-0 transition-all duration-300 pointer-events-none" role="status" aria-live="polite">
+    <div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-surfaceLight/90 backdrop-blur-xl border border-indigo-500/30 shadow-2xl text-sm font-medium text-white">
+      <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+      <span id="toast-message">Copied to clipboard!</span>
+    </div>
+  </div>
+
+  <header class="fixed top-4 inset-x-0 z-40 px-4 sm:px-6">
+    <nav class="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3 rounded-2xl bg-surface/75 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
+          <i class="fa-solid fa-network-wired text-white text-sm"></i>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-display font-bold text-white tracking-tight leading-none text-base">Home LiteLLM</span>
+          <span class="text-[11px] font-mono text-indigo-400 tracking-wider uppercase mt-0.5">v1.x Self-Hosted</span>
+        </div>
+      </a>
+      <div class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-400">
+        <a href="#architecture" class="hover:text-white transition-colors">Architecture</a>
+        <a href="#models" class="hover:text-white transition-colors">Unified Models</a>
+        <a href="#tunnels" class="hover:text-white transition-colors">Tunnels</a>
+        <a href="#quickstart" class="hover:text-white transition-colors">Quickstart</a>
+        <a href="#observability" class="hover:text-white transition-colors">Telemetry</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="https://github.com/atacanymc/home-lite-llm" target="_blank" rel="noopener"
+           class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs sm:text-sm font-medium text-white transition-all">
+          <i class="fa-brands fa-github text-base"></i>
+          <span class="hidden sm:inline">Star on GitHub</span>
+        </a>
+        <a href="#quickstart"
+           class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/25 transition-all">
+          Deploy
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="relative z-10 pt-32 pb-24">
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-20 text-center">
+      <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-slate-300 mb-8 reveal active">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span>OpenAI-Compatible Gateway • Local &amp; Cloud Routing</span>
+      </div>
+
+      <h1 class="font-display font-extrabold text-4xl sm:text-6xl lg:text-7xl tracking-tight text-white max-w-4xl mx-auto leading-[1.08] reveal active">
+        One Unified Endpoint for <br class="hidden sm:block" />
+        <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
+          Every AI Model at Home.
+        </span>
+      </h1>
+
+      <p class="mt-6 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed reveal active">
+        Turn your homelab into a production-grade AI control plane. Route OpenAI, Claude, Gemini, DeepSeek, and local Ollama/vLLM instances behind virtual keys, rate limits, and Grafana telemetry.
+      </p>
+
+      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 reveal active">
+        <div class="flex items-center justify-between gap-3 w-full sm:w-auto px-4 py-3 rounded-2xl bg-surface border border-white/15 shadow-inner font-mono text-xs sm:text-sm text-slate-300">
+          <div class="flex items-center gap-2.5 overflow-x-auto">
+            <span class="text-indigo-400 select-none">$</span>
+            <code id="hero-cmd" class="whitespace-nowrap">git clone https://github.com/atacanymc/home-lite-llm &amp;&amp; ./quickstart.sh</code>
+          </div>
+          <button onclick="copyText('git clone https://github.com/atacanymc/home-lite-llm && ./quickstart.sh')"
+                  title="Copy command"
+                  aria-label="Copy quickstart command"
+                  class="p-2 rounded-xl bg-white/5 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-300 transition-colors shrink-0">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-16 max-w-4xl mx-auto rounded-3xl bg-surface/90 backdrop-blur-xl border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.65)] overflow-hidden text-left reveal">
+        <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 bg-white/[0.02] border-b border-white/10">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+            <span class="ml-2 text-xs font-mono text-slate-400">POST http://localhost:4000/v1/chat/completions</span>
+          </div>
+          <div class="flex items-center gap-1.5 bg-obsidian/80 p-1 rounded-xl border border-white/5" id="sim-tabs">
+            <button onclick="selectSimRoute('ollama')" data-route="ollama" class="sim-tab active px-3 py-1 rounded-lg text-xs font-mono font-medium bg-indigo-600 text-white transition-all">local/ollama</button>
+            <button onclick="selectSimRoute('claude')" data-route="claude" class="sim-tab px-3 py-1 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-white transition-all">claude-sonnet</button>
+            <button onclick="selectSimRoute('deepseek')" data-route="deepseek" class="sim-tab px-3 py-1 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-white transition-all">deepseek-r1</button>
+            <button onclick="selectSimRoute('fallback')" data-route="fallback" class="sim-tab px-3 py-1 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-white transition-all">auto-fallback</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10 font-mono text-xs sm:text-sm">
+          <div class="p-5 sm:p-6 bg-obsidian/40">
+            <div class="flex items-center justify-between text-xs text-slate-500 mb-3">
+              <span>CLIENT REQUEST (IDE / CURSOR / CLINE)</span>
+              <span class="text-indigo-400">sk-virtual-key-01</span>
+            </div>
+            <pre id="sim-request" class="text-slate-300 overflow-x-auto leading-relaxed"><code>{
+  "model": "local/qwen2.5-coder",
+  "messages": [
+    { "role": "user", "content": "Optimize SQL query" }
+  ],
+  "stream": true
+}</code></pre>
+          </div>
+
+          <div class="p-5 sm:p-6 bg-surfaceLight/30 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-xs text-slate-500 mb-3">
+                <span>GATEWAY ROUTING TRACE</span>
+                <span id="sim-badge" class="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">200 OK • 18ms</span>
+              </div>
+              <pre id="sim-response" class="text-emerald-300/90 overflow-x-auto leading-relaxed"><code>→ Target: http://host.docker.internal:11434
+→ Provider: Ollama (Local GPU)
+→ Cost: $0.00000 (Local Inference)
+→ Cache: MISS • Tokens: 142 tok/s</code></pre>
+            </div>
+            <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
+              <span>PostgreSQL Spend Logged</span>
+              <span class="text-indigo-400">Prometheus Metric Emitted</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4 reveal">
+        <div>
+          <span class="text-xs font-mono uppercase tracking-widest text-indigo-400">System Topology</span>
+          <h2 class="font-display font-bold text-3xl sm:text-4xl text-white mt-2">Zero-Friction Request Pipeline</h2>
+        </div>
+        <p class="text-sm text-slate-400 max-w-md">
+          Click any node in the pipeline to inspect how Home LiteLLM authenticates, caches, routes, and logs every token.
+        </p>
+      </div>
+
+      <div class="rounded-3xl bg-surface border border-white/10 p-6 sm:p-10 shadow-2xl reveal">
+        <div class="grid grid-cols-1 lg:grid-cols-11 gap-4 items-center">
+          <div onclick="inspectNode('clients')" class="arch-node cursor-pointer lg:col-span-3 p-5 rounded-2xl bg-surfaceLight border border-indigo-500/40 ring-2 ring-indigo-500/20 transition-all hover:border-indigo-400">
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                <i class="fa-solid fa-laptop-code"></i>
+              </span>
+              <span class="text-[11px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-md">01. Ingress</span>
+            </div>
+            <h3 class="font-display font-bold text-white text-base">AI Clients &amp; IDEs</h3>
+            <p class="text-xs text-slate-400 mt-1">Cursor, Continue, Cline, Open WebUI, Bruno &amp; Python SDKs.</p>
+          </div>
+
+          <div class="hidden lg:flex lg:col-span-1 justify-center">
+            <svg class="w-full h-8" viewBox="0 0 60 24" fill="none">
+              <path d="M0 12 H60" stroke="#6366F1" stroke-width="2" class="flow-line" />
+              <circle cx="56" cy="12" r="3" fill="#818CF8" />
+            </svg>
+          </div>
+
+          <div onclick="inspectNode('gateway')" class="arch-node cursor-pointer lg:col-span-3 p-5 rounded-2xl bg-gradient-to-b from-indigo-950/60 to-surfaceLight border border-white/15 transition-all hover:border-indigo-400">
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                <i class="fa-solid fa-microchip"></i>
+              </span>
+              <span class="text-[11px] font-mono text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-md">02. Core Proxy</span>
+            </div>
+            <h3 class="font-display font-bold text-white text-base">LiteLLM Gateway :4000</h3>
+            <p class="text-xs text-slate-400 mt-1">Virtual Key Auth, Redis Semantic Cache, Rate Limits &amp; Fallbacks.</p>
+          </div>
+
+          <div class="hidden lg:flex lg:col-span-1 justify-center">
+            <svg class="w-full h-8" viewBox="0 0 60 24" fill="none">
+              <path d="M0 12 H60" stroke="#10B981" stroke-width="2" class="flow-line" />
+              <circle cx="56" cy="12" r="3" fill="#34D399" />
+            </svg>
+          </div>
+
+          <div onclick="inspectNode('upstreams')" class="arch-node cursor-pointer lg:col-span-3 p-5 rounded-2xl bg-surfaceLight border border-white/10 transition-all hover:border-emerald-400">
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <i class="fa-solid fa-server"></i>
+              </span>
+              <span class="text-[11px] font-mono text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-md">03. Upstreams</span>
+            </div>
+            <h3 class="font-display font-bold text-white text-base">Hybrid Model Mesh</h3>
+            <p class="text-xs text-slate-400 mt-1">Local Ollama / vLLM + OpenAI, Anthropic, Gemini &amp; Groq.</p>
+          </div>
+        </div>
+
+        <div class="mt-8 p-5 rounded-2xl bg-obsidian/70 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <span id="node-tag" class="text-[11px] font-mono uppercase tracking-wider text-indigo-400">INSPECTING: 01. INGRESS LAYER</span>
+            <h4 id="node-title" class="font-display font-semibold text-white text-lg mt-0.5">Drop-in OpenAI API Compatibility</h4>
+            <p id="node-desc" class="text-sm text-slate-400 mt-1">Point any tool supporting <code class="text-indigo-300">OPENAI_API_BASE</code> to <code class="text-indigo-300">http://localhost:4000/v1</code>. Includes pre-built Bruno &amp; Postman collections for 17+ test endpoints.</p>
+          </div>
+          <div class="flex flex-wrap gap-2 shrink-0" id="node-pills">
+            <span class="px-3 py-1 rounded-lg bg-white/5 text-xs font-mono text-slate-300">Cline / Roo</span>
+            <span class="px-3 py-1 rounded-lg bg-white/5 text-xs font-mono text-slate-300">Open WebUI</span>
+            <span class="px-3 py-1 rounded-lg bg-white/5 text-xs font-mono text-slate-300">Bruno CLI</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="models" class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+      <div class="mb-12 reveal">
+        <span class="text-xs font-mono uppercase tracking-widest text-emerald-400">Capabilities</span>
+        <h2 class="font-display font-bold text-3xl sm:text-4xl text-white mt-2">Engineered for Self-Hosted Sovereignty</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-6 gap-5">
+        <div class="bento-card md:col-span-4 p-7 rounded-3xl bg-surface border border-white/10 reveal">
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-mono">100+ LLMs Unified</span>
+            <i class="fa-solid fa-layer-group text-slate-500"></i>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white">Local Inference + Frontier Cloud APIs</h3>
+          <p class="text-sm text-slate-400 mt-2 max-w-xl">
+            Seamlessly switch between zero-cost local GPUs and frontier cloud models without changing a single line of application code.
+          </p>
+          <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
+            <div class="p-3 rounded-2xl bg-obsidian/70 border border-white/5 flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Ollama
+            </div>
+            <div class="p-3 rounded-2xl bg-obsidian/70 border border-white/5 flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> LM Studio
+            </div>
+            <div class="p-3 rounded-2xl bg-obsidian/70 border border-white/5 flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> vLLM
+            </div>
+            <div class="p-3 rounded-2xl bg-obsidian/70 border border-white/5 flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full bg-indigo-400"></span> GPT-4o / o3
+            </div>
+            <div class="p-3 rounded-2xl bg-obsidian/70 border border-white/5 flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full bg-indigo-400"></span> Claude 3.7
+            </div>
+            <div class="p-3 rounded-2xl bg-obsidian/70 border border-white/5 flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full bg-indigo-400"></span> Gemini 2.5
+            </div>
+            <div class="p-3 rounded-2xl bg-obsidian/70 border border-white/5 flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full bg-indigo-400"></span> DeepSeek R1
+            </div>
+            <div class="p-3 rounded-2xl bg-obsidian/70 border border-white/5 flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full bg-indigo-400"></span> Groq / Grok
+            </div>
+          </div>
+        </div>
+
+        <div class="bento-card md:col-span-2 p-7 rounded-3xl bg-gradient-to-br from-indigo-950/50 via-surface to-surface border border-indigo-500/25 reveal">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-4">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white">Free Coding Stack</h3>
+          <p class="text-sm text-slate-400 mt-2 leading-relaxed">
+            Pair <strong class="text-slate-200">Cline</strong>, <strong class="text-slate-200">Roo Code</strong>, or <strong class="text-slate-200">dsh</strong> with Groq, Gemini free tiers, and local Qwen3.8 for $0/month AI coding.
+          </p>
+          <div class="mt-5 pt-4 border-t border-white/10 text-xs font-mono text-indigo-300">
+            docs/FREE_CODING_ASSISTANTS.md →
+          </div>
+        </div>
+
+        <div class="bento-card md:col-span-2 p-7 rounded-3xl bg-surface border border-white/10 reveal">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center mb-4">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white">Virtual Keys &amp; Budgets</h3>
+          <p class="text-sm text-slate-400 mt-2 leading-relaxed">
+            Issue scoped virtual API keys per project, family member, or background agent with hard spend caps and RPM/TPM limits.
+          </p>
+        </div>
+
+        <div class="bento-card md:col-span-2 p-7 rounded-3xl bg-surface border border-white/10 reveal">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center mb-4">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white">Automated DB Backups</h3>
+          <p class="text-sm text-slate-400 mt-2 leading-relaxed">
+            Built-in <code class="text-slate-200">backup_db.sh</code>, <code class="text-slate-200">restore_db.sh</code>, and <code class="text-slate-200">validate_config.py</code> ensure zero-downtime upgrades and safe rollbacks.
+          </p>
+        </div>
+
+        <div class="bento-card md:col-span-2 p-7 rounded-3xl bg-surface border border-white/10 reveal">
+          <div class="w-10 h-10 rounded-2xl bg-rose-500/15 text-rose-400 flex items-center justify-center mb-4">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white">Redis Response Cache</h3>
+          <p class="text-sm text-slate-400 mt-2 leading-relaxed">
+            Eliminate redundant LLM token spend and drop repeated prompt latency to sub-5ms using integrated Redis caching.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tunnels" class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+      <div class="rounded-3xl bg-surface border border-white/10 p-6 sm:p-10 reveal">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 border-b border-white/10">
+          <div>
+            <span class="text-xs font-mono uppercase tracking-widest text-indigo-400">Secure Ingress</span>
+            <h2 class="font-display font-bold text-3xl text-white mt-1">Access Your Home Gateway Anywhere</h2>
+            <p class="text-sm text-slate-400 mt-2">Choose from 4 turnkey networking topologies included in <code class="text-slate-300">tunnels/</code>.</p>
+          </div>
+          <div class="flex flex-wrap gap-2" id="tunnel-tabs">
+            <button onclick="selectTunnel('tailscale')" data-tunnel="tailscale" class="tunnel-btn active px-4 py-2 rounded-xl text-xs font-mono font-semibold bg-indigo-600 text-white transition-all">Tailscale Mesh</button>
+            <button onclick="selectTunnel('cloudflare')" data-tunnel="cloudflare" class="tunnel-btn px-4 py-2 rounded-xl text-xs font-mono font-semibold bg-white/5 text-slate-400 hover:text-white transition-all">Cloudflare Tunnel</button>
+            <button onclick="selectTunnel('ngrok')" data-tunnel="ngrok" class="tunnel-btn px-4 py-2 rounded-xl text-xs font-mono font-semibold bg-white/5 text-slate-400 hover:text-white transition-all">ngrok Edge</button>
+            <button onclick="selectTunnel('ddns')" data-tunnel="ddns" class="tunnel-btn px-4 py-2 rounded-xl text-xs font-mono font-semibold bg-white/5 text-slate-400 hover:text-white transition-all">Port Forward + DDNS</button>
+          </div>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-6 space-y-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono" id="tunnel-badge">
+              Recommended • Zero Open Ports
+            </div>
+            <h3 id="tunnel-title" class="font-display font-bold text-2xl text-white">Tailscale Private WireGuard Mesh</h3>
+            <p id="tunnel-desc" class="text-sm text-slate-400 leading-relaxed">
+              Expose your LiteLLM gateway exclusively to your authenticated devices over encrypted WireGuard without opening firewall ports or exposing a public URL.
+            </p>
+            <ul id="tunnel-features" class="space-y-2 text-xs sm:text-sm text-slate-300">
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> MagicDNS HTTPS certificates out of the box</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Docker Compose sidecar ready</li>
+            </ul>
+          </div>
+
+          <div class="lg:col-span-6">
+            <div class="rounded-2xl bg-obsidian border border-white/10 overflow-hidden">
+              <div class="flex items-center justify-between px-4 py-2.5 bg-white/[0.03] border-b border-white/10 text-xs font-mono text-slate-400">
+                <span id="tunnel-file">tunnels/tailscale/start-tailscale.sh</span>
+                <button onclick="copyTunnelCmd()" class="text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5">
+                  <i class="fa-regular fa-copy"></i> Copy
+                </button>
+              </div>
+              <pre id="tunnel-code" class="p-4 font-mono text-xs sm:text-sm text-slate-200 overflow-x-auto leading-relaxed"><code>cd tunnels/tailscale
+chmod +x start-tailscale.sh
+./start-tailscale.sh</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="quickstart" class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+      <div class="text-center max-w-2xl mx-auto mb-12 reveal">
+        <span class="text-xs font-mono uppercase tracking-widest text-indigo-400">Deployment</span>
+        <h2 class="font-display font-bold text-3xl sm:text-4xl text-white mt-2">Up and Running in 60 Seconds</h2>
+        <p class="text-sm text-slate-400 mt-3">Interactive bootstrap script validates Docker, generates master keys, and initializes PostgreSQL &amp; Redis.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 reveal">
+        <div class="p-6 rounded-3xl bg-surface border border-white/10 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-mono text-indigo-400">STEP 01</span>
+            <h3 class="font-display font-bold text-lg text-white mt-1">Bootstrap Environment</h3>
+            <p class="text-xs text-slate-400 mt-2">Clone the repository and run the interactive setup wizard to generate secure keys.</p>
+          </div>
+          <div class="mt-5 p-3.5 rounded-xl bg-obsidian border border-white/10 font-mono text-xs text-slate-300 flex items-center justify-between gap-2">
+            <code class="truncate">./quickstart.sh</code>
+            <button onclick="copyText('./quickstart.sh')" aria-label="Copy step 1 command" class="text-slate-400 hover:text-white"><i class="fa-regular fa-copy"></i></button>
+          </div>
+        </div>
+
+        <div class="p-6 rounded-3xl bg-surface border border-white/10 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-mono text-indigo-400">STEP 02</span>
+            <h3 class="font-display font-bold text-lg text-white mt-1">Launch Docker Stack</h3>
+            <p class="text-xs text-slate-400 mt-2">Start LiteLLM Proxy, PostgreSQL, Redis, Prometheus, and Grafana via Makefile.</p>
+          </div>
+          <div class="mt-5 p-3.5 rounded-xl bg-obsidian border border-white/10 font-mono text-xs text-slate-300 flex items-center justify-between gap-2">
+            <code class="truncate">make up &amp;&amp; make health</code>
+            <button onclick="copyText('make up && make health')" aria-label="Copy step 2 command" class="text-slate-400 hover:text-white"><i class="fa-regular fa-copy"></i></button>
+          </div>
+        </div>
+
+        <div class="p-6 rounded-3xl bg-surface border border-white/10 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-mono text-indigo-400">STEP 03</span>
+            <h3 class="font-display font-bold text-lg text-white mt-1">Verify With Bruno / Curl</h3>
+            <p class="text-xs text-slate-400 mt-2">Query your unified gateway on port <code class="text-slate-200">4000</code> or open the Admin UI at <code class="text-slate-200">/ui</code>.</p>
+          </div>
+          <div class="mt-5 p-3.5 rounded-xl bg-obsidian border border-white/10 font-mono text-xs text-slate-300 flex items-center justify-between gap-2">
+            <code class="truncate">curl http://localhost:4000/health</code>
+            <button onclick="copyText('curl http://localhost:4000/health')" aria-label="Copy step 3 command" class="text-slate-400 hover:text-white"><i class="fa-regular fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="observability" class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+      <div class="rounded-3xl bg-gradient-to-r from-surface via-surfaceLight to-surface border border-white/10 p-8 sm:p-12 reveal">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-5">
+            <span class="text-xs font-mono uppercase tracking-widest text-emerald-400">Full Telemetry</span>
+            <h2 class="font-display font-bold text-3xl text-white mt-2">Prometheus &amp; Grafana Built In</h2>
+            <p class="text-sm text-slate-400 mt-3 leading-relaxed">
+              Track token velocity, TTFT (Time to First Token), provider fallback frequency, and real-time dollar spend per virtual key out of the box.
+            </p>
+            <div class="mt-6 flex flex-wrap gap-3 text-xs font-mono">
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian border border-white/10 text-slate-300">LiteLLM UI :4000/ui</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian border border-white/10 text-slate-300">Grafana :3000</span>
+              <span class="px-3 py-1.5 rounded-xl bg-obsidian border border-white/10 text-slate-300">Prometheus :9090</span>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div class="p-5 rounded-2xl bg-obsidian/80 border border-white/10">
+              <span class="text-xs font-mono text-slate-400">AVG LATENCY (LOCAL)</span>
+              <div class="font-display font-bold text-2xl sm:text-3xl text-emerald-400 mt-2">14.2<span class="text-sm font-normal text-slate-400">ms</span></div>
+              <span class="text-[11px] text-emerald-400/80 mt-1 block">↓ 92% vs cloud</span>
+            </div>
+            <div class="p-5 rounded-2xl bg-obsidian/80 border border-white/10">
+              <span class="text-xs font-mono text-slate-400">CACHE HIT RATIO</span>
+              <div class="font-display font-bold text-2xl sm:text-3xl text-indigo-400 mt-2">68.4<span class="text-sm font-normal text-slate-400">%</span></div>
+              <span class="text-[11px] text-indigo-300/80 mt-1 block">Redis semantic</span>
+            </div>
+            <div class="col-span-2 sm:col-span-1 p-5 rounded-2xl bg-obsidian/80 border border-white/10">
+              <span class="text-xs font-mono text-slate-400">ACTIVE MODELS</span>
+              <div class="font-display font-bold text-2xl sm:text-3xl text-white mt-2">12</div>
+              <span class="text-[11px] text-slate-400 mt-1 block">Hybrid mesh healthy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="relative z-10 border-t border-white/10 bg-obsidian/90 backdrop-blur-lg">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs">
+          <i class="fa-solid fa-network-wired"></i>
+        </div>
+        <div>
+          <span class="font-display font-bold text-white text-sm">Home LiteLLM</span>
+          <p class="text-xs text-slate-500">MIT Licensed • Built for Self-Hosted AI Infrastructure</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-6 text-xs font-mono text-slate-400">
+        <a href="https://github.com/atacanymc/home-lite-llm" target="_blank" rel="noopener" class="hover:text-white transition-colors">Repository</a>
+        <a href="https://github.com/atacanymc/home-lite-llm/blob/main/docs/INTEGRATION_GUIDE.md" target="_blank" rel="noopener" class="hover:text-white transition-colors">Integration Guide</a>
+        <a href="https://github.com/atacanymc/home-lite-llm/blob/main/docs/FREE_CODING_ASSISTANTS.md" target="_blank" rel="noopener" class="hover:text-white transition-colors">Free Coding Stack</a>
+        <a href="https://github.com/atacanymc/home-lite-llm/blob/main/SECURITY.md" target="_blank" rel="noopener" class="hover:text-white transition-colors">Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelectorAll('.bento-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+        card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+      });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('active');
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast('Copied to clipboard');
+          return;
+        } catch {}
+      }
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast('Copied to clipboard');
+      } catch {
+        showToast('Press Ctrl+C to copy');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    let toastTimeout;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2400);
+    }
+
+    const simRoutes = {
+      ollama: {
+        req: `{\n  "model": "local/qwen2.5-coder",\n  "messages": [\n    { "role": "user", "content": "Optimize SQL query" }\n  ],\n  "stream": true\n}`,
+        badge: '200 OK • 18ms',
+        res: `→ Target: http://host.docker.internal:11434\n→ Provider: Ollama (Local GPU)\n→ Cost: $0.00000 (Local Inference)\n→ Cache: MISS • Tokens: 142 tok/s`
+      },
+      claude: {
+        req: `{\n  "model": "claude-3-7-sonnet",\n  "messages": [\n    { "role": "user", "content": "Refactor AST parser" }\n  ],\n  "max_tokens": 4096\n}`,
+        badge: '200 OK • 310ms',
+        res: `→ Target: api.anthropic.com/v1/messages\n→ Provider: Anthropic (Cloud)\n→ Cost: $0.00412 (Budget: $19.84 left)\n→ Virtual Key: sk-dev-workstation`
+      },
+      deepseek: {
+        req: `{\n  "model": "deepseek-reasoner",\n  "messages": [\n    { "role": "user", "content": "Prove consensus safety" }\n  ]\n}`,
+        badge: '200 OK • 420ms',
+        res: `→ Target: api.deepseek.com/v1\n→ Provider: DeepSeek R1\n→ Cost: $0.00089 • Reasoning Tokens: 612\n→ Rate Limit: 58/60 RPM remaining`
+      },
+      fallback: {
+        req: `{\n  "model": "smart-coding-group",\n  "messages": [\n    { "role": "user", "content": "Generate unit tests" }\n  ]\n}`,
+        badge: 'FAILOVER • 200 OK',
+        res: `⚠ Primary (Ollama) busy → Triggered Fallback\n→ Rerouted: Groq (llama-3.3-70b-versatile)\n→ Speed: 490 tok/s • Zero Client Error\n→ Logged to Grafana Alerting`
+      }
+    };
+
+    function selectSimRoute(routeKey) {
+      const data = simRoutes[routeKey];
+      document.getElementById('sim-request').innerHTML = `<code>${data.req}</code>`;
+      document.getElementById('sim-response').innerHTML = `<code>${data.res}</code>`;
+      document.getElementById('sim-badge').textContent = data.badge;
+      document.querySelectorAll('.sim-tab').forEach(btn => {
+        btn.classList.toggle('bg-indigo-600', btn.dataset.route === routeKey);
+        btn.classList.toggle('text-white', btn.dataset.route === routeKey);
+        btn.classList.toggle('text-slate-400', btn.dataset.route !== routeKey);
+      });
+    }
+
+    const archData = {
+      clients: {
+        tag: 'INSPECTING: 01. INGRESS LAYER',
+        title: 'Drop-in OpenAI API Compatibility',
+        desc: 'Point any tool supporting OPENAI_API_BASE to http://localhost:4000/v1. Includes pre-built Bruno & Postman collections for 17+ test endpoints.',
+        pills: ['Cline / Roo', 'Open WebUI', 'Bruno CLI']
+      },
+      gateway: {
+        tag: 'INSPECTING: 02. LITELLM CORE PROXY',
+        title: 'Virtual Keys, Redis Cache & Smart Routing',
+        desc: 'Validates virtual keys against PostgreSQL, serves cached completions from Redis in <5ms, and enforces per-key budgets, retries, and cooldowns.',
+        pills: ['PostgreSQL DB', 'Redis Cache', 'Rate Limiter']
+      },
+      upstreams: {
+        tag: 'INSPECTING: 03. HYBRID MODEL MESH',
+        title: 'Seamless Local GPU & Cloud Provider Orchestration',
+        desc: 'Combines local Ollama, LM Studio, and vLLM servers with OpenAI, Anthropic, Gemini, DeepSeek, Grok, and Groq under unified model aliases.',
+        pills: ['Ollama / vLLM', 'Anthropic / OpenAI', 'Gemini / Groq']
+      }
+    };
+
+    function inspectNode(key) {
+      const info = archData[key];
+      document.getElementById('node-tag').textContent = info.tag;
+      document.getElementById('node-title').textContent = info.title;
+      document.getElementById('node-desc').textContent = info.desc;
+      document.getElementById('node-pills').innerHTML = info.pills
+        .map(p => `<span class="px-3 py-1 rounded-lg bg-white/5 text-xs font-mono text-slate-300">${p}</span>`)
+        .join('');
+    }
+
+    const tunnelData = {
+      tailscale: {
+        badge: 'Recommended • Zero Open Ports',
+        title: 'Tailscale Private WireGuard Mesh',
+        desc: 'Expose your LiteLLM gateway exclusively to your authenticated devices over encrypted WireGuard without opening firewall ports or exposing a public URL.',
+        features: ['MagicDNS HTTPS certificates out of the box', 'Docker Compose sidecar ready'],
+        file: 'tunnels/tailscale/start-tailscale.sh',
+        code: `cd tunnels/tailscale\nchmod +x start-tailscale.sh\n./start-tailscale.sh`
+      },
+      cloudflare: {
+        badge: 'Zero-Trust Public Edge',
+        title: 'Cloudflare Zero Trust Tunnel',
+        desc: 'Publish your gateway to a custom subdomain with automatic TLS, DDoS protection, and Cloudflare Access policies—without port forwarding.',
+        features: ['Custom domain HTTPS (e.g. llm.yourdomain.com)', 'Protected by Cloudflare Edge & Access'],
+        file: 'tunnels/cloudflare/start-cloudflare.sh',
+        code: `cd tunnels/cloudflare\nchmod +x start-cloudflare.sh\n./start-cloudflare.sh`
+      },
+      ngrok: {
+        badge: 'Instant Webhook & Mobile Testing',
+        title: 'ngrok Ephemeral or Static Edge',
+        desc: 'Spin up an instant HTTPS endpoint in seconds for testing mobile AI apps or sharing temporary access with collaborators.',
+        features: ['Built-in traffic inspector & replay', 'One-command Docker Compose launch'],
+        file: 'tunnels/ngrok/start-ngrok.sh',
+        code: `cd tunnels/ngrok\nchmod +x start-ngrok.sh\n./start-ngrok.sh`
+      },
+      ddns: {
+        badge: 'Direct Self-Hosted Networking',
+        title: 'Router Port Forwarding + Dynamic DNS',
+        desc: 'Automated Dynamic DNS updater script for home routers with static port forwarding and reverse proxy TLS termination.',
+        features: ['Automated IP change detection via setup-ddns.sh', 'Full control over network path & latency'],
+        file: 'tunnels/port-forwarding/setup-ddns.sh',
+        code: `cd tunnels/port-forwarding\nchmod +x setup-ddns.sh\n./setup-ddns.sh`
+      }
+    };
+
+    let currentTunnelCmd = tunnelData.tailscale.code;
+
+    function selectTunnel(key) {
+      const t = tunnelData[key];
+      currentTunnelCmd = t.code;
+      document.getElementById('tunnel-badge').textContent = t.badge;
+      document.getElementById('tunnel-title').textContent = t.title;
+      document.getElementById('tunnel-desc').textContent = t.desc;
+      document.getElementById('tunnel-file').textContent = t.file;
+      document.getElementById('tunnel-code').innerHTML = `<code>${t.code}</code>`;
+      document.getElementById('tunnel-features').innerHTML = t.features
+        .map(f => `<li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> ${f}</li>`)
+        .join('');
+      document.querySelectorAll('.tunnel-btn').forEach(btn => {
+        const active = btn.dataset.tunnel === key;
+        btn.classList.toggle('bg-indigo-600', active);
+        btn.classList.toggle('text-white', active);
+        btn.classList.toggle('bg-white/5', !active);
+        btn.classList.toggle('text-slate-400', !active);
+      });
+    }
+
+    function copyTunnelCmd() {
+      copyText(currentTunnelCmd);
+    }
+  </script>
+</body>
+</html>
