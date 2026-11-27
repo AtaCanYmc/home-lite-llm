@@ -107,14 +107,17 @@ jobs:
       - name: Start Ephemeral LiteLLM Container
         run: |
           docker run -d --name litellm-smoke -p 4000:4000 \
+            -v "$PWD/config.yaml:/app/config.yaml:ro" \
             -e PORT=4000 \
-            ghcr.io/berriai/litellm:main-latest --port 4000
-          for i in $(seq 1 30); do
+            ghcr.io/berriai/litellm:main-latest --config /app/config.yaml --port 4000
+          for i in $(seq 1 45); do
             if curl -sf http://127.0.0.1:4000/health/readiness; then
-              break
+              exit 0
             fi
             sleep 2
           done
+          docker logs litellm-smoke || true
+          exit 1
 
       - name: Run Bruno Health Readiness Smoke Test
         run: |
