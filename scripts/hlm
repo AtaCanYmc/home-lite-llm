@@ -10,27 +10,68 @@ done
 ROOT_DIR="$(cd -P "$(dirname "$SOURCE")/.." && pwd)"
 cd "$ROOT_DIR"
 
-usage() {
-  cat <<'EOF'
-hlm — Home LiteLLM CLI
+if [ -n "${NO_COLOR:-}" ] || [ ! -t 1 ]; then
+  BOLD="" DIM="" GREEN="" YELLOW="" RED="" CYAN="" RESET=""
+else
+  BOLD='\033[1m' DIM='\033[2m' GREEN='\033[32m' YELLOW='\033[33m' RED='\033[31m' CYAN='\033[36m' RESET='\033[0m'
+fi
 
+get_version() {
+  if [ -f .release-please-manifest.json ]; then
+    sed -n 's/.*"\.": "\([^"]*\)".*/\1/p' .release-please-manifest.json | head -n1
+  else
+    echo "1.2.0"
+  fi
+}
+
+usage() {
+  printf "${BOLD}${CYAN}hlm${RESET} — Home LiteLLM CLI (v%s)\n\n" "$(get_version)"
+  cat <<'EOF'
 Usage: hlm <command> [args]
 
-Commands:
+Lifecycle:
   up          Start all services in background
   down        Stop all services
   restart     Restart all services
   status      Show container status
   logs [svc]  Follow logs (all or specific service)
+
+Diagnostics:
   health      Check LiteLLM readiness endpoint
   validate    Validate config.yaml and .env
+  doctor      Check local dependencies and config files
   models      List active models from LiteLLM
   test-api    Run Bruno API endpoint tests
+
+Tools:
   dsh         Launch DeepSeek Harness (dsh) with LiteLLM patch
+  version     Print hlm version
+
+Database:
   backup      Create PostgreSQL backup
   restore <f> Restore PostgreSQL backup from file
   help        Show this help
 EOF
+}
+
+run_doctor() {
+  local ok=0
+  for bin in docker python3 curl; do
+    if command -v "$bin" >/dev/null 2>&1; then
+      printf "  ${GREEN}✔${RESET} %-14s %s\n" "$bin" "$(command -v "$bin")"
+    else
+      printf "  ${RED}✖${RESET} %-14s missing\n" "$bin"
+      ok=1
+    fi
+  done
+  for cfg in config.yaml .env; do
+    if [ -f "$cfg" ]; then
+      printf "  ${GREEN}✔${RESET} %-14s present\n" "$cfg"
+    else
+      printf "  ${YELLOW}!${RESET} %-14s missing (copy from .env.example if needed)\n" "$cfg"
+    fi
+  done
+  return "$ok"
 }
 
 cmd="${1:-help}"
@@ -44,6 +85,7 @@ case "$cmd" in
   logs)        docker compose logs -f "$@" ;;
   health)      curl -sf http://127.0.0.1:4000/health/readiness && echo "" ;;
   validate)    python3 scripts/validate_config.py "$@" ;;
+  doctor)      run_doctor ;;
   models)
     KEY=""
     if [ -f .env ]; then
@@ -75,6 +117,7 @@ case "$cmd" in
     fi
     ./scripts/restore_db.sh "$1"
     ;;
+  version|-v|--version) echo "hlm $(get_version)" ;;
   help|-h|--help) usage ;;
   *)
     echo "Unknown command: $cmd" >&2
