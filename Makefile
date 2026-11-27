@@ -3,7 +3,7 @@
 # Convenience commands for container lifecycle, configuration, tests, and backups
 # ==============================================================================
 
-.PHONY: help up start down stop restart status ps logs logs-litellm logs-db logs-grafana logs-prometheus build clean validate quickstart backup restore health test-models test-api lint dsh
+.PHONY: help up start down stop restart status ps logs logs-litellm logs-db logs-grafana logs-prometheus build clean validate quickstart backup restore health test-models test-api lint dsh install-cli
 
 # Default target when invoking `make` without arguments
 .DEFAULT_GOAL := help
@@ -69,6 +69,12 @@ quickstart: ## Lifecycle: Run the interactive quickstart wizard
 
 dsh: ## Lifecycle: Launch DeepSeek Harness (dsh) connected to LiteLLM
 	npx @deepseek-ai/dsh web --patch docs/homelitellm.patch.yml
+
+install-cli: ## Lifecycle: Symlink hlm CLI to ~/.local/bin/hlm
+	@mkdir -p $(HOME)/.local/bin
+	@chmod +x $(CURDIR)/scripts/hlm
+	@ln -sf $(CURDIR)/scripts/hlm $(HOME)/.local/bin/hlm
+	@echo "Installed hlm -> $(HOME)/.local/bin/hlm"
 
 ## 📊 Monitoring & Logs
 ps: ## Logs: Show status of running containers

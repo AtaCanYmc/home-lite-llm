@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+
+usage() {
+  cat <<'EOF'
+hlm — Home LiteLLM CLI
+
+Usage: hlm <command> [args]
+
+Commands:
+  up          Start all services in background
+  down        Stop all services
+  restart     Restart all services
+  status      Show container status
+  logs [svc]  Follow logs (all or specific service)
+  health      Check LiteLLM readiness endpoint
+  validate    Validate config.yaml and .env
+  models      List active models from LiteLLM
+  test-api    Run Bruno API endpoint tests
+  dsh         Launch DeepSeek Harness (dsh) with LiteLLM patch
+  backup      Create PostgreSQL backup
+  restore <f> Restore PostgreSQL backup from file
+  help        Show this help
+EOF
+}
+
+cmd="${1:-help}"
+shift || true
+
+case "$cmd" in
+  up|start)    docker compose up -d "$@" ;;
+  down|stop)   docker compose down "$@" ;;
+  restart)     docker compose restart "$@" ;;
+  status|ps)   docker compose ps "$@" ;;
+  logs)        docker compose logs -f "$@" ;;
+  health)      curl -sf http://127.0.0.1:4000/health/readiness && echo "" ;;
+  validate)    python3 scripts/validate_config.py "$@" ;;
+  models)
+    KEY=""
+    if [ -f .env ]; then
+      KEY="$(grep -E '^MASTER_KEY=' .env | cut -d '=' -f2- | tr -d "\"'")"
+    fi
+    if [ -n "$KEY" ]; then
+      curl -sf -H "Authorization: Bearer $KEY" http://127.0.0.1:4000/v1/models | python3 -m json.tool
+    else
+      curl -sf http://127.0.0.1:4000/v1/models | python3 -m json.tool
+    fi
+    ;;
+  test-api)
+    if command -v bru >/dev/null 2>&1; then
+      (cd collections/bruno && bru run --env Local "$@")
+    else
+      (cd collections/bruno && npx @usebruno/cli run --env Local "$@")
+    fi
+    ;;
+  dsh)         npx @deepseek-ai/dsh web --patch docs/homelitellm.patch.yml "$@" ;;
+  backup)      ./scripts/backup_db.sh "$@" ;;
+  restore)
+    if [ -z "${1:-}" ]; then
+      echo "Usage: hlm restore <backup-file>" >&2
+      exit 1
+    fi
+    ./scripts/restore_db.sh "$1"
+    ;;
+  help|-h|--help) usage ;;
+  *)
+    echo "Unknown command: $cmd" >&2
+    usage
+    exit 1
+    ;;
+esac
