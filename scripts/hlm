@@ -20,7 +20,7 @@ get_version() {
   if [ -f .release-please-manifest.json ]; then
     sed -n 's/.*"\.": "\([^"]*\)".*/\1/p' .release-please-manifest.json | head -n1
   else
-    echo "1.2.0"
+    echo "1.3.1" # x-release-please-version
   fi
 }
 
