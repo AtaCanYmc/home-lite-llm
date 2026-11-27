@@ -373,14 +373,14 @@ def print_cli_report(results: dict, quiet: bool = False):
             if m.get("api_key_ref"):
                 ref = m["api_key_ref"]
                 if str(ref).startswith("os.environ/"):
-                    var_name = ref.split("os.environ/", 1)[1]
-                    env_st = results["env_status"].get(var_name, {}).get("status", "UNKNOWN")
+                    raw_name = ref.split("os.environ/", 1)[1]
+                    env_st = results["env_status"].get(raw_name, {}).get("status", "UNKNOWN")
                     if env_st == "SET":
-                        auth_label = f" {GREEN}(Key: {var_name} ✔){RESET}"
+                        auth_label = f" {GREEN}(Env Key ✔){RESET}"
                     elif env_st == "PLACEHOLDER":
-                        auth_label = f" {YELLOW}(Key: {var_name} ⚠ placeholder){RESET}"
+                        auth_label = f" {YELLOW}(Env Key ⚠ placeholder){RESET}"
                     else:
-                        auth_label = f" {RED}(Key: {var_name} ✖ missing){RESET}"
+                        auth_label = f" {RED}(Env Key ✖ missing){RESET}"
                 else:
                     auth_label = f" {DIM}(Key: direct){RESET}"
             elif m.get("api_base"):
