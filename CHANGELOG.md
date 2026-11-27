@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/AtaCanYmc/home-lite-llm/compare/v1.1.1...v1.2.0) (2026-11-27)
+
+
+### Features
+
+* **cli:** add hlm CLI wrapper and make install-cli target ([193f8c4](https://github.com/AtaCanYmc/home-lite-llm/commit/193f8c493a0a18810d33ad970cbbd7c5d23a51b4))
+* **collections:** add missing bruno endpoints and api tests ([431e189](https://github.com/AtaCanYmc/home-lite-llm/commit/431e1893ae9dbf57c1dcf6842b740b28c43df4d6))
+* **docs:** add zero-dependency showcase and documentation site for github pages ([e5d5dab](https://github.com/AtaCanYmc/home-lite-llm/commit/e5d5dab7b7b7327d76a0a066fe1c834adfd0634e))
+* **site:** upgrade website and move to site/ folder ([9dbefe0](https://github.com/AtaCanYmc/home-lite-llm/commit/9dbefe00db3cbd56e777051a4be4ee834d27f3a5))
+
+
+### Bug Fixes
+
+* **ci:** revert pages upload/deploy actions to v3/v4 ([77002a2](https://github.com/AtaCanYmc/home-lite-llm/commit/77002a2a765b622c7778724b95b6150f4e309989))
+* **security:** resolve CodeQL clear-text logging and workflow permissions alerts ([69d1279](https://github.com/AtaCanYmc/home-lite-llm/commit/69d12792d224ab29a3d9bb28d1bdc901aa904c86))
+
+
+### Code Refactoring
+
+* **site:** split index.html into HTML, CSS, and JS ([ecaf03a](https://github.com/AtaCanYmc/home-lite-llm/commit/ecaf03ad08a36a7258a9e0ebd08f3672fd859fd5))
+
+
+### Documentation
+
+* add dsh to home-lite-llm integration section ([604bc61](https://github.com/AtaCanYmc/home-lite-llm/commit/604bc6170d52751731ad4fe7ce592e974ea3011b))
+* add free AI coding assistants guide (OpenCode & DeepSeek Harness) ([355ddbb](https://github.com/AtaCanYmc/home-lite-llm/commit/355ddbb6627a8ee39c76b47364ba52f22ded623a))
+* **diagrams:** add HTML/SVG architecture and request flow diagrams ([2fefac9](https://github.com/AtaCanYmc/home-lite-llm/commit/2fefac9cfb717f8be67f6a03e5e032f3f7aa0a71))
+* **diagrams:** replace Mermaid blocks with SVG diagrams ([75e8976](https://github.com/AtaCanYmc/home-lite-llm/commit/75e8976e5292577c2fd512201b7b3716f9a61c36))
+* **integrations:** add DeepSeek Harness (dsh) patch template and setup guide ([2c86967](https://github.com/AtaCanYmc/home-lite-llm/commit/2c8696785eae0ddb7d8b21174a6d1fbfec46613d))
+
 ## [1.1.1](https://github.com/AtaCanYmc/home-lite-llm/compare/v1.1.0...v1.1.1) (2026-11-16)
 
 
