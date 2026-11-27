@@ -181,3 +181,39 @@ launchctl setenv OLLAMA_KEEP_ALIVE "10m"
   - `npx @deepseek-ai/dsh web` (`http://127.0.0.1:3080`, use `--no-open` for SSH/headless).
   - From source: `pnpm install && pnpm run build && pnpm dsh web` (`pnpm run dev:web` for development, `make help` for targets).
 - **Key `docs/` Modules:** `architecture.md`, `cordis-primer.md`, `agent-lifecycle.md`, `tool-execution-pipeline.md`, `capability-seams.md`, `persistence-catalog.md`, `session-format-status.md`, `defensive-patterns/`, `cookbook/`, `subsystems/`, and `AGENTS.md` (search `dsh-plugin` on GitHub for plugins).
+
+---
+
+## 6. Connecting DeepSeek Harness (`dsh`) to `home-lite-llm`
+
+Because `home-lite-llm` exposes an OpenAI-compatible `/v1` gateway, `dsh` can use it directly as a model provider to inherit virtual keys, HTTP 429 failover chains, and Grafana/Prometheus tracking.
+
+### YAML Patch (`homelitellm.patch.yml`)
+
+```yaml
+- id: llm-pi-ai
+  config:
+    providers:
+      home-lite-llm:
+        displayName: Home LiteLLM
+        api: openai-completions
+        baseURL: http://127.0.0.1:4000/v1
+        apiKeyEnv: LITELLM_API_KEY
+        models:
+          - id: <litellm-config-model-name>
+            contextWindow: 128000
+```
+
+Run `dsh` with the patch:
+
+```bash
+export LITELLM_API_KEY="sk-your-litellm-virtual-key"
+npx @deepseek-ai/dsh web --patch ./homelitellm.patch.yml
+```
+
+You can verify the config with `--dump-config`, or configure `http://127.0.0.1:4000/v1` via **dsh Web UI → Settings → Models → Add a custom provider**.
+
+### Deployment Guidance
+
+- **Run locally, not in Docker Compose:** Run `dsh` on the machine where you edit code (e.g., macOS) and point it to `http://127.0.0.1:4000/v1` (or your Tailscale URL if `home-lite-llm` runs on a remote host), because `dsh` reads local project files and executes commands.
+- **Remote host access:** Start with `npx @deepseek-ai/dsh web --no-open` and never expose port `3080` to the public internet (per `SAFETY.md`); restrict access behind Tailscale or Cloudflare Access.
