@@ -369,24 +369,24 @@ def print_cli_report(results: dict, quiet: bool = False):
     if results["models"]:
         print(f"{BOLD}📋 Configured Models:{RESET}")
         for m in results["models"]:
-            key_info = ""
+            auth_label = ""
             if m.get("api_key_ref"):
                 ref = m["api_key_ref"]
                 if str(ref).startswith("os.environ/"):
                     var_name = ref.split("os.environ/", 1)[1]
                     env_st = results["env_status"].get(var_name, {}).get("status", "UNKNOWN")
                     if env_st == "SET":
-                        key_info = f" {GREEN}(Key: {var_name} ✔){RESET}"
+                        auth_label = f" {GREEN}(Key: {var_name} ✔){RESET}"
                     elif env_st == "PLACEHOLDER":
-                        key_info = f" {YELLOW}(Key: {var_name} ⚠ placeholder){RESET}"
+                        auth_label = f" {YELLOW}(Key: {var_name} ⚠ placeholder){RESET}"
                     else:
-                        key_info = f" {RED}(Key: {var_name} ✖ missing){RESET}"
+                        auth_label = f" {RED}(Key: {var_name} ✖ missing){RESET}"
                 else:
-                    key_info = f" {DIM}(Key: direct){RESET}"
+                    auth_label = f" {DIM}(Key: direct){RESET}"
             elif m.get("api_base"):
-                key_info = f" {CYAN}(Local Base: {m['api_base']}){RESET}"
+                auth_label = f" {CYAN}(Local Base: {m['api_base']}){RESET}"
 
-            print(f"  • {BOLD}{m['name']:<24}{RESET} -> {DIM}{m.get('target', 'N/A')}{RESET}{key_info}")
+            print(f"  • {BOLD}{m['name']:<24}{RESET} -> {DIM}{m.get('target', 'N/A')}{RESET}{auth_label}")
         print()
 
     # Environment Variables Summary
@@ -449,7 +449,13 @@ def main():
     results = validate_configuration(args.config, env_file, strict=args.strict)
 
     if args.json:
-        print(json.dumps(results, indent=2))
+        safe_results = {
+            **results,
+            "env_status": {
+                k: {"status": v["status"]} for k, v in results.get("env_status", {}).items()
+            },
+        }
+        print(json.dumps(safe_results, indent=2))
     else:
         print_cli_report(results, quiet=args.quiet)
 
