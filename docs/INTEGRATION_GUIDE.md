@@ -68,6 +68,8 @@ sequenceDiagram
     Proxy-->>Client: 200 OK (OpenAI-compatible JSON payload)
 ```
 
+> Interactive HTML/SVG version: [docs/diagrams/request-flow.html](diagrams/request-flow.html)
+
 ---
 
 ## 3. IDE and Coding Assistant Integration
