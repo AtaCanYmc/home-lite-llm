@@ -16,11 +16,11 @@ Concrete release milestones for `home-lite-llm`. Completed items link to impleme
 - [x] Homebrew formula `pkgshare` installation for `docs/homelitellm.patch.yml`
 - [x] Automated Bruno API smoke test job (`bruno-smoke`) against ephemeral LiteLLM container in CI
 
-## v1.4.0 (Planned)
+## v1.4.0 (Implemented on `main`)
 
-- [ ] Per-model latency, TTFT, and HTTP 429 failover panels in Grafana dashboard (`monitoring/grafana/`)
-- [ ] Automated `release-please` workflow to open a Homebrew tap bump PR on new GitHub releases
-- [ ] Pre-commit hook for `scripts/test_hlm.sh` and `scripts/validate_config.py`
+- [x] Per-model latency, TTFT, and HTTP 429 failover panels in Grafana dashboard (`monitoring/grafana/`)
+- [x] Automated `release-please` workflow to open a Homebrew tap bump PR on new GitHub releases
+- [x] Pre-commit hook for `scripts/test_hlm.sh` and `scripts/validate_config.py`
 
 ## v1.5.0 (Planned)
 
