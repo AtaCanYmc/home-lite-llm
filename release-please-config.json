@@ -6,6 +6,12 @@
       "release-type": "simple",
       "package-name": "home-lite-llm",
       "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "site/index.html"
+        }
+      ],
       "bootstrap-sha": "1f9dbef1cecf7b019a2965946a1107e4bf58c5c1",
       "changelog-sections": [
         {"type": "feat", "section": "Features"},
