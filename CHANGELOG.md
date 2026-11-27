@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/AtaCanYmc/home-lite-llm/compare/v1.2.1...v1.3.0) (2026-11-27)
+
+
+### Features
+
+* **cli:** upgrade hlm with doctor, version, grouped help, and tests ([9d66dc9](https://github.com/AtaCanYmc/home-lite-llm/commit/9d66dc9622dc90f85d78e8149e2853546fafd3f8))
+* **observability,ci:** add Grafana panels, tap bump job, and pre-commit hooks ([aeb2505](https://github.com/AtaCanYmc/home-lite-llm/commit/aeb25054fd1fc25b2492acae99100abac352566f))
+
+
+### Bug Fixes
+
+* **ci:** mount config.yaml and fail fast in bruno-smoke ([91a0d32](https://github.com/AtaCanYmc/home-lite-llm/commit/91a0d32f4310677de2cec122ee450f904ab7987e))
+* **ci:** provide ephemeral LiteLLM master key ([e78906f](https://github.com/AtaCanYmc/home-lite-llm/commit/e78906fac2b031bed2e4ffb758f483cae829e3e5))
+* **ci:** use minimal smoke config for ephemeral LiteLLM container ([074e30c](https://github.com/AtaCanYmc/home-lite-llm/commit/074e30c96da6935ffe46293c05941fa79a2e6a47))
+* **security:** remove tainted var_name from CLI print in validate_config.py ([c343317](https://github.com/AtaCanYmc/home-lite-llm/commit/c343317618710f58d4f51fef92f613c730303a8d))
+
+
+### Documentation
+
+* add ROADMAP.md ([081190d](https://github.com/AtaCanYmc/home-lite-llm/commit/081190d090e511d751f3dac1b0dcbd7b538289dc))
+* link ROADMAP.md from README.md ([fc84ac1](https://github.com/AtaCanYmc/home-lite-llm/commit/fc84ac11ccd360f17c98651ebbdbe07b561bb3ed))
+* **roadmap:** structure release milestones through v1.5.0 ([1ce4a3b](https://github.com/AtaCanYmc/home-lite-llm/commit/1ce4a3b6d9361ba861c604e5dadcc440f40a4d99))
+
 ## [1.2.1](https://github.com/AtaCanYmc/home-lite-llm/compare/v1.2.0...v1.2.1) (2026-11-27)
 
 
