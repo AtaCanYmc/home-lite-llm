@@ -27,9 +27,10 @@ assert_contains() {
 }
 
 # 1. version command
+expected_ver="$(sed -n 's/.*"\.": "\([^"]*\)".*/\1/p' "$ROOT_DIR/.release-please-manifest.json" | head -n1)"
 out="$("$HLM" version)"
 assert_contains "version outputs hlm" "hlm " "$out"
-assert_contains "version outputs 1.2.0" "1.2.0" "$out"
+assert_contains "version matches manifest" "$expected_ver" "$out"
 
 # 2. help command has grouped sections
 help_out="$(NO_COLOR=1 "$HLM" help)"
@@ -62,7 +63,7 @@ TMP_LINK="/tmp/hlm-test-link-$$"
 ln -sf "$HLM" "$TMP_LINK"
 sym_out="$(cd /tmp && "$TMP_LINK" version)"
 rm -f "$TMP_LINK"
-assert_contains "symlinked version works" "1.2.0" "$sym_out"
+assert_contains "symlinked version works" "$expected_ver" "$sym_out"
 
 echo "Passed: $PASS, Failed: $FAIL"
 [ "$FAIL" -eq 0 ]
