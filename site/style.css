@@ -1,0 +1,32 @@
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #050507; }
+::-webkit-scrollbar-thumb { background: #1E202B; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #313548; }
+.bg-noise {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+.bento-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
+}
+.bento-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.12), transparent 40%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.bento-card:hover::before { opacity: 1; }
+.bento-card:hover { transform: translateY(-3px); border-color: rgba(129, 140, 248, 0.35); }
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.active { opacity: 1; transform: translateY(0); }
+.flow-line { stroke-dasharray: 6 6; animation: dash 1.5s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: -24; } }
