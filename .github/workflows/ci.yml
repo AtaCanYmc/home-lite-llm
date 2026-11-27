@@ -51,6 +51,9 @@ jobs:
       - name: Run hlm CLI Tests
         run: bash scripts/test_hlm.sh
 
+      - name: Run Python Unit Tests
+        run: python3 -m unittest discover -s tests
+
       - name: Create Environment File for CI
         run: cp .env.example .env
 

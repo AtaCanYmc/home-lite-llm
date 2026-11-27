@@ -1,0 +1,9 @@
+{
+  "name": "home-lite-llm",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "postCreateCommand": "pip install pyyaml yamllint ruff && chmod +x scripts/hlm scripts/test_hlm.sh"
+}

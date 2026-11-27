@@ -1,0 +1,26 @@
+groups:
+  - name: litellm_gateway
+    rules:
+      - alert: LiteLLMHighRateLimit429
+        expr: sum(rate(litellm_proxy_failed_requests_metric{status_code="429"}[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP 429 rate on LiteLLM Gateway"
+
+      - alert: LiteLLMHighLatencyP95
+        expr: histogram_quantile(0.95, sum(rate(litellm_request_total_latency_metric_bucket[5m])) by (le)) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "LiteLLM p95 request latency above 10s"
+
+      - alert: LiteLLMTargetDown
+        expr: up{job="litellm"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "LiteLLM Proxy target is down"
